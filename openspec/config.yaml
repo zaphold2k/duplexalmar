@@ -1,0 +1,22 @@
+schema: spec-driven
+
+context: |
+  Sitio de presentación para el alquiler temporario de dos casas de playa
+  ("Las Petras — Casas de Mar", El Marquesado, Buenos Aires).
+  Stack: Astro en modo servidor (adapter node standalone), TypeScript, Node.js,
+  sharp para imágenes, manifest JSON por casa sobre un volumen, Docker Compose.
+  Todo el código sigue las reglas de CODESTYLE.md en la raíz del repositorio:
+  depurable, comentarios sólo técnicos y sólo cuando hacen falta, siempre
+  formateado (npm run check en verde), estructura por capas y production ready.
+  Identificadores en inglés; comentarios, docs y commits en español.
+
+rules:
+  tasks:
+    - Toda tarea que produzca código debe dejar `npm run check` en verde.
+    - Las tareas de configuración de tooling deben reflejar lo que exige CODESTYLE.md.
+
+operations:
+  apply:
+    guidance:
+      - Leer CODESTYLE.md antes de escribir código y aplicarlo sin excepciones no documentadas.
+      - No desactivar reglas de lint ni de TypeScript en línea sin justificación en el mismo comentario.
