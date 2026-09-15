@@ -1,10 +1,10 @@
 ## 1. Andamiaje del proyecto
 
-- [ ] 1.1 Crear la rama `feature/sitio-inicial` sobre `git@github.com:zaphold2k/duplexalmar.git` y verificar que `git status` la reporta como rama activa y limpia
-- [ ] 1.2 Inicializar el proyecto Astro con TypeScript en modo estricto, `output: 'server'` y el adapter `@astrojs/node` en modo `standalone`, y verificar que `npm run build` genera el servidor y `npm run preview` sirve la página inicial
-- [ ] 1.3 Configurar formateo y linting, y verificar que el comando de verificación corre limpio sobre el proyecto vacío
-- [ ] 1.4 Definir el módulo de configuración que lee y valida las variables de entorno al arrancar (credenciales del panel, secreto de sesión, número de WhatsApp, límites de subida, ruta de `/data`), y verificar con un test que un entorno incompleto falla al iniciar con un mensaje que nombra la variable faltante
-- [ ] 1.5 Escribir el `.env.example` con todas las variables documentadas y sin valores reales, y verificar que el `.gitignore` excluye `.env` y el directorio de datos local
+- [x] 1.1 Crear la rama `feature/sitio-inicial` sobre `git@github.com:zaphold2k/duplexalmar.git` y verificar que `git status` la reporta como rama activa y limpia
+- [x] 1.2 Inicializar el proyecto Astro con TypeScript en modo estricto, `output: 'server'` y el adapter `@astrojs/node` en modo `standalone`, y verificar que `npm run build` genera el servidor y `npm run preview` sirve la página inicial
+- [x] 1.3 Configurar formateo y linting, y verificar que el comando de verificación corre limpio sobre el proyecto vacío
+- [x] 1.4 Definir el módulo de configuración que lee y valida las variables de entorno al arrancar (credenciales del panel, secreto de sesión, número de WhatsApp, límites de subida, ruta de `/data`), y verificar con un test que un entorno incompleto falla al iniciar con un mensaje que nombra la variable faltante
+- [x] 1.5 Escribir el `.env.example` con todas las variables documentadas y sin valores reales, y verificar que el `.gitignore` excluye `.env` y el directorio de datos local
 
 ## 2. Almacenamiento y manifest
 
