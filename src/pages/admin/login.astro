@@ -1,0 +1,125 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { stringField } from '../../lib/form-data';
+import {
+  attemptLogin,
+  generateSessionId,
+  loginRateLimiter,
+  SESSION_COOKIE_NAME,
+  SESSION_TTL_MS,
+  sessionStore,
+  signValue,
+} from '../../server/auth';
+import { config } from '../../server/config';
+
+// Mismo mensaje sin importar si falló el usuario, la contraseña o el límite
+// de intentos: no distingue cuál de los dos campos estuvo mal (ver spec
+// admin-imagenes, "Credenciales incorrectas").
+const GENERIC_ERROR = 'Usuario o contraseña incorrectos.';
+
+let errorMessage: string | null = null;
+
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData();
+  const username = stringField(formData, 'username');
+  const password = stringField(formData, 'password');
+
+  const result = await attemptLogin(Astro.clientAddress, username, password, {
+    credentials: { username: config.admin.username, passwordHash: config.admin.passwordHash },
+    sessionStore,
+    rateLimiter: loginRateLimiter,
+    now: Date.now(),
+    sessionTtlMs: SESSION_TTL_MS,
+    generateId: generateSessionId,
+  });
+
+  if (result.outcome === 'success' && result.sessionId && result.expiresAt) {
+    const cookieValue = signValue(result.sessionId, config.session.secret);
+    Astro.cookies.set(SESSION_COOKIE_NAME, cookieValue, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      path: '/',
+      expires: new Date(result.expiresAt),
+    });
+    return Astro.redirect('/admin');
+  }
+
+  errorMessage = GENERIC_ERROR;
+}
+---
+
+<BaseLayout
+  title="Ingresar — Las Petras — Casas de Mar"
+  description="Panel de administración."
+  noindex
+>
+  <main class="login">
+    <h1>Ingresar</h1>
+    {errorMessage && (
+      <p role="alert" class="login__error">
+        {errorMessage}
+      </p>
+    )}
+    <form method="post" class="login__form">
+      <label class="login__field">
+        <span>Usuario</span>
+        <input type="text" name="username" autocomplete="username" required />
+      </label>
+      <label class="login__field">
+        <span>Contraseña</span>
+        <input type="password" name="password" autocomplete="current-password" required />
+      </label>
+      <button type="submit" class="login__submit">
+        Ingresar
+      </button>
+    </form>
+  </main>
+</BaseLayout>
+
+<style>
+  .login {
+    max-width: 24rem;
+    margin: var(--space-6) auto;
+    padding: 0 var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .login__error {
+    color: var(--color-accent-rosa);
+    font-weight: 600;
+  }
+
+  .login__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .login__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .login__field input {
+    min-height: var(--touch-target-min);
+    padding: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: var(--step-0);
+  }
+
+  .login__submit {
+    min-height: var(--touch-target-min);
+    padding: var(--space-2) var(--space-4);
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--color-accent);
+    color: var(--color-accent-contrast);
+    font-weight: 600;
+    cursor: pointer;
+  }
+</style>

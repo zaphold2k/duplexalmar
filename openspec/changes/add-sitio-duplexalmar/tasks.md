@@ -42,11 +42,11 @@
 
 ## 6. Autenticación del panel
 
-- [ ] 6.1 Implementar la verificación de la contraseña contra el hash provisto por entorno y el utilitario para generar ese hash, y verificar con tests que una contraseña correcta valida y una incorrecta no
-- [ ] 6.2 Implementar las sesiones en memoria con cookie `HttpOnly`, `Secure` y `SameSite=Lax` con vencimiento, y verificar con tests que cerrar sesión invalida el identificador del lado del servidor y que reutilizar la cookie anterior queda rechazado
-- [ ] 6.3 Implementar el guardia que protege toda ruta del panel y todo endpoint de escritura, y verificar con tests que sin sesión las rutas redirigen al inicio de sesión y los endpoints responden no autorizado sin modificar estado
-- [ ] 6.4 Implementar la limitación de intentos de inicio de sesión por origen con demora creciente, y verificar con un test que tras varios intentos fallidos los siguientes se demoran o bloquean
-- [ ] 6.5 Implementar la página de inicio de sesión con mensaje de error que no distingue entre usuario y contraseña incorrectos, y verificar que el mensaje es idéntico en ambos casos
+- [x] 6.1 Implementar la verificación de la contraseña contra el hash provisto por entorno y el utilitario para generar ese hash, y verificar con tests que una contraseña correcta valida y una incorrecta no
+- [x] 6.2 Implementar las sesiones en memoria con cookie `HttpOnly`, `Secure` y `SameSite=Lax` con vencimiento, y verificar con tests que cerrar sesión invalida el identificador del lado del servidor y que reutilizar la cookie anterior queda rechazado
+- [x] 6.3 Implementar el guardia que protege toda ruta del panel y todo endpoint de escritura, y verificar con tests que sin sesión las rutas redirigen al inicio de sesión y los endpoints responden no autorizado sin modificar estado
+- [x] 6.4 Implementar la limitación de intentos de inicio de sesión por origen con demora creciente, y verificar con un test que tras varios intentos fallidos los siguientes se demoran o bloquean
+- [x] 6.5 Implementar la página de inicio de sesión con mensaje de error que no distingue entre usuario y contraseña incorrectos, y verificar que el mensaje es idéntico en ambos casos
 
 ## 7. Panel de administración
 

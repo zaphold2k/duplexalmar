@@ -9,9 +9,17 @@ export interface Props {
   house?: HouseSlug;
   /** Ruta absoluta de la imagen de vista previa social (og:image). */
   ogImagePath?: string | undefined;
+  /** El panel privado no debe indexarse ni salir en vistas previas. */
+  noindex?: boolean;
 }
 
-const { title, description, house, ogImagePath = '/images/reserve-cover.jpg' } = Astro.props;
+const {
+  title,
+  description,
+  house,
+  ogImagePath = '/images/reserve-cover.jpg',
+  noindex = false,
+} = Astro.props;
 const ogImageUrl = new URL(ogImagePath, Astro.url.origin).toString();
 ---
 
@@ -24,6 +32,7 @@ const ogImageUrl = new URL(ogImagePath, Astro.url.origin).toString();
     -->
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="icon" href="/favicon.svg" />
     <title>{title}</title>
 

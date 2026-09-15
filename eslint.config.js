@@ -38,12 +38,24 @@ export default defineConfig(
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
+      // Bug conocido de esta combinación de versiones: `no-misused-promises`
+      // revienta (no reporta, tira excepción) al revisar un `return` dentro
+      // de un `if` en el frontmatter, porque astro-eslint-parser sintetiza
+      // una función sin el nodo padre que la regla espera ahí.
+      '@typescript-eslint/no-misused-promises': 'off',
     },
   },
   {
     files: ['**/*.test.ts'],
     rules: {
       '@typescript-eslint/no-non-null-assertion': 'off',
+    },
+  },
+  {
+    files: ['scripts/**'],
+    rules: {
+      // Son utilitarios de línea de comandos: su salida es la consola.
+      'no-console': 'off',
     },
   },
 );
