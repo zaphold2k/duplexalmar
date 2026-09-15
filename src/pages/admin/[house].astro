@@ -41,7 +41,9 @@ const pageData =
   >
     <main class="admin" data-house={pageData.house.slug} data-admin-gallery>
       <p>
-        <a href="/admin">← Volver a la selección de casa</a>
+        <a href="/admin" class="admin__back-link">
+          ← Volver a la selección de casa
+        </a>
       </p>
       <h1>{pageData.house.name}</h1>
 
@@ -117,6 +119,13 @@ const pageData =
     display: flex;
     flex-direction: column;
     gap: var(--space-5);
+  }
+
+  .admin__back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-target-min);
+    font-weight: 600;
   }
 
   .admin__section {

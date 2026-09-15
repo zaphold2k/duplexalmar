@@ -60,11 +60,11 @@
 
 ## 8. Accesibilidad y verificación en dispositivo
 
-- [ ] 8.1 Revisar el sitio público completo con el tamaño de texto del sistema en su ajuste máximo en un iPhone real y verificar que ningún texto queda recortado ni superpuesto y que todas las llamadas a la acción siguen pulsables
-- [ ] 8.2 Recorrer el flujo completo del panel (iniciar sesión, subir un lote, designar portada, reordenar, eliminar, cerrar sesión) en un iPhone real con el texto en su ajuste máximo y verificar que se completa sin controles recortados ni inaccesibles
-- [ ] 8.3 Verificar que todos los objetivos táctiles miden al menos 44 por 44 píxeles CSS y que ningún control depende de un ícono sin etiqueta de texto
-- [ ] 8.4 Verificar el sitio al 200 por ciento de zoom del navegador y a 320 píxeles de ancho, comprobando que no hay pérdida de contenido ni desplazamiento horizontal del cuerpo
-- [ ] 8.5 Pasar una auditoría automatizada de accesibilidad sobre el inicio, una página de casa y el panel, y verificar que no quedan incumplimientos de contraste, etiquetado de controles ni orden de encabezados
+- [ ] 8.1 Revisar el sitio público completo con el tamaño de texto del sistema en su ajuste máximo en un iPhone real y verificar que ningún texto queda recortado ni superpuesto y que todas las llamadas a la acción siguen pulsables — pendiente: requiere un iPhone real (ver resumen del hito)
+- [ ] 8.2 Recorrer el flujo completo del panel (iniciar sesión, subir un lote, designar portada, reordenar, eliminar, cerrar sesión) en un iPhone real con el texto en su ajuste máximo y verificar que se completa sin controles recortados ni inaccesibles — pendiente: requiere un iPhone real (ver resumen del hito)
+- [x] 8.3 Verificar que todos los objetivos táctiles miden al menos 44 por 44 píxeles CSS y que ningún control depende de un ícono sin etiqueta de texto
+- [x] 8.4 Verificar el sitio al 200 por ciento de zoom del navegador y a 320 píxeles de ancho, comprobando que no hay pérdida de contenido ni desplazamiento horizontal del cuerpo
+- [x] 8.5 Pasar una auditoría automatizada de accesibilidad sobre el inicio, una página de casa y el panel, y verificar que no quedan incumplimientos de contraste, etiquetado de controles ni orden de encabezados
 
 ## 9. Empaquetado y operación
 

@@ -19,7 +19,9 @@
   --color-text-muted: var(--color-ink-700);
   --color-border: var(--color-sand-300);
 
-  --color-accent-rosa: #c1666b;
+  /* Contraste ≥ 4.5:1 con texto blanco (WCAG AA); el tono original (#c1666b)
+     daba 3.9:1, detectado por la auditoría de accesibilidad (tarea 8.5). */
+  --color-accent-rosa: #a8535a;
   --color-accent-verde: #4f7a5a;
   /* Acento por defecto (páginas sin casa asociada, p. ej. inicio/ubicación) */
   --color-accent: var(--color-sea-600);
