@@ -6,9 +6,9 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "astro dev",
+    "dev": "node --env-file=.env node_modules/.bin/astro dev",
     "build": "astro build",
-    "preview": "astro preview",
+    "preview": "node --env-file=.env node_modules/.bin/astro preview",
     "astro": "astro",
     "typecheck": "astro check",
     "lint": "eslint . --max-warnings 0",

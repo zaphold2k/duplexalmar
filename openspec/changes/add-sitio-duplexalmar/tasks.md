@@ -74,4 +74,4 @@
 - [x] 9.4 Implementar el comando de mantenimiento que lista los archivos huérfanos y el espacio ocupado, con borrado sólo bajo confirmación explícita, y verificar con un test que detecta un huérfano y que no elimina nada sin confirmación
 - [x] 9.5 Verificar la persistencia reiniciando y redesplegando el contenedor sobre el mismo volumen, comprobando que las fotos, la portada y el orden se conservan
 - [x] 9.6 Verificar la restauración copiando `/data` a una instalación limpia y comprobando que el sitio muestra el mismo contenido que al momento de la copia
-- [ ] 9.7 Escribir el `README` con las instrucciones de desarrollo, las variables de entorno, cómo generar el hash de la contraseña, cómo respaldar y cómo restaurar, y verificar siguiéndolo desde cero en un entorno limpio
+- [x] 9.7 Escribir el `README` con las instrucciones de desarrollo, las variables de entorno, cómo generar el hash de la contraseña, cómo respaldar y cómo restaurar, y verificar siguiéndolo desde cero en un entorno limpio

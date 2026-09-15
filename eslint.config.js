@@ -61,7 +61,10 @@ export default defineConfig(
   {
     // Corre en la imagen final de Docker, sin paso de build (ver Dockerfile):
     // tiene que ser JS plano, así que TypeScript no lo type-checkea ni le da
-    // globales de Node vía tsconfig, y las reglas type-aware asumen "any".
+    // globales de Node vía tsconfig. Además importa `./dist/server/entry.mjs`,
+    // que sólo existe después de `npm run build`; en un clon recién hecho
+    // (antes del primer build) ese import no resuelve, así que las reglas
+    // type-aware ven todo como `any`/error y no aportan nada real acá.
     files: ['server-entrypoint.mjs'],
     languageOptions: {
       globals: {
@@ -73,6 +76,11 @@ export default defineConfig(
     rules: {
       'no-console': 'off',
       '@typescript-eslint/restrict-template-expressions': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
     },
   },
 );
