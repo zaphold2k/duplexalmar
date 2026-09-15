@@ -15,12 +15,12 @@
 
 ## 3. Pipeline de imágenes
 
-- [ ] 3.1 Implementar el módulo de decodificación de HEIC aislado detrás de una interfaz mínima, y verificar con un test que procesa un archivo HEIC real incluido en el repositorio de pruebas
-- [ ] 3.2 Implementar la detección del formato real del archivo a partir de su contenido y no de su extensión ni del tipo declarado por el cliente, y verificar con tests que un archivo no imagen y un archivo con extensión engañosa se rechazan
-- [ ] 3.3 Implementar la generación de variantes WebP en los anchos 480, 900, 1600 y 2400, omitiendo las que superen el ancho del original, y verificar con tests que un original angosto produce sólo las variantes aplicables y que ninguna variante agranda la imagen
-- [ ] 3.4 Aplicar la orientación EXIF y eliminar toda la metadata en la salida, y verificar con tests que una foto vertical queda derecha y que la salida no conserva la geolocalización del original
-- [ ] 3.5 Implementar el guardado del original y de las variantes bajo `/data/images/<casa>/` con identificadores únicos generados por el servidor, y verificar con un test que el nombre del archivo enviado por el cliente no influye en la ruta escrita
-- [ ] 3.6 Implementar el procesamiento secuencial de un lote con reporte por archivo de éxito o error, escribiendo el manifest sólo después de que todas las variantes de una foto estén en disco, y verificar con un test que un fallo a mitad de lote deja cargadas las anteriores y no referencia la fallida
+- [x] 3.1 Implementar el módulo de decodificación de HEIC aislado detrás de una interfaz mínima, y verificar con un test que procesa un archivo HEIC real incluido en el repositorio de pruebas
+- [x] 3.2 Implementar la detección del formato real del archivo a partir de su contenido y no de su extensión ni del tipo declarado por el cliente, y verificar con tests que un archivo no imagen y un archivo con extensión engañosa se rechazan
+- [x] 3.3 Implementar la generación de variantes WebP en los anchos 480, 900, 1600 y 2400, omitiendo las que superen el ancho del original, y verificar con tests que un original angosto produce sólo las variantes aplicables y que ninguna variante agranda la imagen
+- [x] 3.4 Aplicar la orientación EXIF y eliminar toda la metadata en la salida, y verificar con tests que una foto vertical queda derecha y que la salida no conserva la geolocalización del original
+- [x] 3.5 Implementar el guardado del original y de las variantes bajo `/data/images/<casa>/` con identificadores únicos generados por el servidor, y verificar con un test que el nombre del archivo enviado por el cliente no influye en la ruta escrita
+- [x] 3.6 Implementar el procesamiento secuencial de un lote con reporte por archivo de éxito o error, escribiendo el manifest sólo después de que todas las variantes de una foto estén en disco, y verificar con un test que un fallo a mitad de lote deja cargadas las anteriores y no referencia la fallida
 
 ## 4. Contenido y sistema de diseño
 
