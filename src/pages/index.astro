@@ -1,16 +1,16 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// Placeholder del andamiaje: la página de inicio real se construye en la
+// tarea 5.2 (hero, presentación, acceso a las casas, ubicación y contacto).
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
-  </head>
-  <body>
-    <h1>Astro</h1>
-  </body>
-</html>
+<BaseLayout
+  title="Las Petras — Casas de Mar"
+  description="Dos casas de playa en El Marquesado, frente al mar, en la zona sur de Mar del Plata."
+>
+  <main>
+    <h1>Las Petras — Casas de Mar</h1>
+    <p>Sitio en construcción.</p>
+  </main>
+</BaseLayout>

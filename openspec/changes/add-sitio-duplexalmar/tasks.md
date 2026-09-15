@@ -24,10 +24,10 @@
 
 ## 4. Contenido y sistema de diseño
 
-- [ ] 4.1 Definir el módulo tipado de contenido de las casas con `casa-rosa` y `casa-verde`, incluyendo descripción, servicios, capacidad y reglas, con textos de relleno marcados como pendientes, y verificar que el tipo obliga a completar todos los campos en ambas casas
-- [ ] 4.2 Definir los tokens de diseño (paleta natural de costa con acentos rosa y verde por casa, escala tipográfica en unidades relativas, espaciado) y verificar visualmente en una página de muestra que la escala completa acompaña un cambio del tamaño de fuente raíz
-- [ ] 4.3 Implementar la suscripción a Dynamic Type declarando la tipografía raíz con la fuente de sistema correspondiente, restableciendo la familia en `body` y acotando el crecimiento del tamaño raíz con un tope, y verificar en un iPhone real que cambiar el tamaño de texto del sistema modifica el tamaño de la página
-- [ ] 4.4 Implementar el layout base con la meta etiqueta de viewport sin restricción de zoom, y verificar que ninguna página se desplaza horizontalmente a 320 píxeles de ancho
+- [x] 4.1 Definir el módulo tipado de contenido de las casas con `casa-rosa` y `casa-verde`, incluyendo descripción, servicios, capacidad y reglas, con textos de relleno marcados como pendientes, y verificar que el tipo obliga a completar todos los campos en ambas casas
+- [x] 4.2 Definir los tokens de diseño (paleta natural de costa con acentos rosa y verde por casa, escala tipográfica en unidades relativas, espaciado) y verificar visualmente en una página de muestra que la escala completa acompaña un cambio del tamaño de fuente raíz
+- [ ] 4.3 Implementar la suscripción a Dynamic Type declarando la tipografía raíz con la fuente de sistema correspondiente, restableciendo la familia en `body` y acotando el crecimiento del tamaño raíz con un tope, y verificar en un iPhone real que cambiar el tamaño de texto del sistema modifica el tamaño de la página — implementado; falta la verificación en un iPhone real (pendiente, ver resumen del hito)
+- [x] 4.4 Implementar el layout base con la meta etiqueta de viewport sin restricción de zoom, y verificar que ninguna página se desplaza horizontalmente a 320 píxeles de ancho
 
 ## 5. Sitio público
 

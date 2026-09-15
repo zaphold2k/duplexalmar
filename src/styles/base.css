@@ -1,0 +1,78 @@
+/**
+ * Suscripción a Dynamic Type (ver design.md, decisión 8) y reset base.
+ *
+ * En iOS, el ajuste de texto del sistema no afecta a una página web salvo que
+ * se suscriba explícitamente: `font: -apple-system-body` en el elemento raíz
+ * trae el tamaño de fuente que el usuario eligió en Ajustes (además de la
+ * familia del sistema, que `body` vuelve a fijar de inmediato). Fuera de
+ * WebKit/iOS esta declaración no tiene efecto y el tamaño raíz queda en el
+ * valor inicial del navegador.
+ */
+html {
+  font: -apple-system-body;
+}
+
+body {
+  /*
+   * Se retoma la familia propia; el tamaño lo dejó `html` (Dynamic Type) y un
+   * script mínimo en el `<head>` (ver BaseLayout.astro) ya lo acotó con un
+   * tope antes del primer render. `rem` no puede leer su propio valor para
+   * acotarse a sí mismo (el `font-size` de `html` no tiene "padre" del que
+   * tomar un `em`), así que el tope se aplica una sola vez, sobre `html`,
+   * antes de que el resto de la escala (toda en `rem`) lo herede.
+   */
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  line-height: 1.5;
+  color: var(--color-text);
+  background: var(--color-surface);
+  margin: 0;
+  min-height: 100vh;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* Ningún contenedor de texto tiene una altura fija que lo recorte al crecer la fuente. */
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--color-accent);
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure {
+  margin: 0;
+}
+
+/* El contenido ancho (galerías, mapas) se desplaza dentro de su propio contenedor. */
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}

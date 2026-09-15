@@ -1,0 +1,49 @@
+---
+import '../styles/tokens.css';
+import '../styles/base.css';
+import type { HouseSlug } from '../content/houses';
+
+export interface Props {
+  title: string;
+  description: string;
+  house?: HouseSlug;
+}
+
+const { title, description, house } = Astro.props;
+---
+
+<html lang="es" data-house={house}>
+  <head>
+    <meta charset="utf-8" />
+    <!--
+      Sin `maximum-scale` ni `user-scalable=no`: el zoom del visitante nunca
+      se bloquea (ver spec sitio-publico, "Accesibilidad con texto agrandado").
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.svg" />
+    <title>{title}</title>
+    <script is:inline>
+      // Tope al crecimiento del tamaño de fuente raíz que trajo Dynamic Type
+      // (`font: -apple-system-body` en base.css). CSS no puede acotar una
+      // propiedad contra su propio valor en el mismo elemento —`em` en
+      // `font-size` mira al padre, y `html` no tiene—, así que se lee el
+      // tamaño ya calculado y se reescribe una vez, antes del primer pintado,
+      // para que toda la escala tipográfica (en `rem`) herede el valor acotado.
+      (function capRootFontSize() {
+        var MIN_PX = 16;
+        var MAX_PX = 28;
+        var root = document.documentElement;
+        var current = parseFloat(getComputedStyle(root).fontSize);
+        if (!Number.isFinite(current)) return;
+        var capped = Math.min(Math.max(current, MIN_PX), MAX_PX);
+        if (capped !== current) {
+          root.style.fontSize = capped + 'px';
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
