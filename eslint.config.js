@@ -58,4 +58,21 @@ export default defineConfig(
       'no-console': 'off',
     },
   },
+  {
+    // Corre en la imagen final de Docker, sin paso de build (ver Dockerfile):
+    // tiene que ser JS plano, así que TypeScript no lo type-checkea ni le da
+    // globales de Node vía tsconfig, y las reglas type-aware asumen "any".
+    files: ['server-entrypoint.mjs'],
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        setTimeout: 'readonly',
+      },
+    },
+    rules: {
+      'no-console': 'off',
+      '@typescript-eslint/restrict-template-expressions': 'off',
+    },
+  },
 );

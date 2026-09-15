@@ -1,0 +1,13 @@
+# Se carga automáticamente junto a docker-compose.yml (convención de Docker
+# Compose). En desarrollo, /data es un directorio local en vez del volumen
+# nombrado, para poder inspeccionar a mano los archivos que genera una
+# subida (ver tarea 9.3).
+services:
+  app:
+    volumes:
+      - ./data:/data
+
+  proxy:
+    volumes:
+      - ./proxy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./data:/data:ro

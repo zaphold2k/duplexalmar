@@ -23,6 +23,7 @@ pnpm-debug.log*
 # environment variables
 .env
 .env.production
+.env.docker
 
 # directorio de datos local (manifests + imágenes); nunca se commitea
 /data/

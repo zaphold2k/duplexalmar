@@ -68,10 +68,10 @@
 
 ## 9. Empaquetado y operación
 
-- [ ] 9.1 Escribir el `Dockerfile` con build en varias etapas sobre una base estándar de Node, y verificar que la imagen construye y que el contenedor sirve el sitio con `/data` vacío
-- [ ] 9.2 Escribir el `docker-compose.yml` con el servicio de aplicación, el reverse proxy sirviendo `/images/` desde el volumen, el volumen nombrado en `/data` y el límite de memoria del servicio de aplicación, y verificar que `docker compose up` levanta el sitio y que una imagen subida se sirve a través del proxy
-- [ ] 9.3 Configurar el montaje de `/data` como directorio local en desarrollo y verificar que los archivos generados por una subida son inspeccionables desde el host
-- [ ] 9.4 Implementar el comando de mantenimiento que lista los archivos huérfanos y el espacio ocupado, con borrado sólo bajo confirmación explícita, y verificar con un test que detecta un huérfano y que no elimina nada sin confirmación
-- [ ] 9.5 Verificar la persistencia reiniciando y redesplegando el contenedor sobre el mismo volumen, comprobando que las fotos, la portada y el orden se conservan
-- [ ] 9.6 Verificar la restauración copiando `/data` a una instalación limpia y comprobando que el sitio muestra el mismo contenido que al momento de la copia
+- [x] 9.1 Escribir el `Dockerfile` con build en varias etapas sobre una base estándar de Node, y verificar que la imagen construye y que el contenedor sirve el sitio con `/data` vacío
+- [x] 9.2 Escribir el `docker-compose.yml` con el servicio de aplicación, el reverse proxy sirviendo `/images/` desde el volumen, el volumen nombrado en `/data` y el límite de memoria del servicio de aplicación, y verificar que `docker compose up` levanta el sitio y que una imagen subida se sirve a través del proxy
+- [x] 9.3 Configurar el montaje de `/data` como directorio local en desarrollo y verificar que los archivos generados por una subida son inspeccionables desde el host
+- [x] 9.4 Implementar el comando de mantenimiento que lista los archivos huérfanos y el espacio ocupado, con borrado sólo bajo confirmación explícita, y verificar con un test que detecta un huérfano y que no elimina nada sin confirmación
+- [x] 9.5 Verificar la persistencia reiniciando y redesplegando el contenedor sobre el mismo volumen, comprobando que las fotos, la portada y el orden se conservan
+- [x] 9.6 Verificar la restauración copiando `/data` a una instalación limpia y comprobando que el sitio muestra el mismo contenido que al momento de la copia
 - [ ] 9.7 Escribir el `README` con las instrucciones de desarrollo, las variables de entorno, cómo generar el hash de la contraseña, cómo respaldar y cómo restaurar, y verificar siguiéndolo desde cero en un entorno limpio

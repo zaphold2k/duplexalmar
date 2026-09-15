@@ -1,0 +1,35 @@
+# dependencias e instalación: se reinstalan dentro de la imagen
+node_modules
+
+# build local: se genera dentro de la imagen
+dist
+.astro
+
+# datos y secretos: nunca entran a la imagen
+data
+.data
+.env
+.env.*
+
+# tests: no hacen falta para servir el sitio
+e2e
+test-results
+playwright-report
+blob-report
+src/**/*.test.ts
+
+# utilitarios de desarrollo, no de runtime
+scripts
+
+# control de versiones y editor
+.git
+.github
+.vscode
+.idea
+
+# planificación y agentes: no son parte de la app
+openspec
+.claude
+CODESTYLE.md
+
+*.log
