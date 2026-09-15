@@ -1,0 +1,69 @@
+---
+export interface Props {
+  class?: string;
+  headingLevel?: 'h1' | 'h2' | 'h3';
+}
+
+const { class: className, headingLevel = 'h2' } = Astro.props;
+const Heading = headingLevel;
+
+// Búsqueda por nombre de lugar, no coordenadas exactas: el anfitrión todavía
+// tiene que confirmar la posición precisa (ver design.md, anexo "Ubicación y
+// distancias" — "Verificar antes de publicarlas").
+const placeQuery = 'El Marquesado, Mar del Plata, Buenos Aires, Argentina';
+const embedSrc = `https://www.google.com/maps?q=${encodeURIComponent(placeQuery)}&output=embed`;
+const externalMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeQuery)}`;
+---
+
+<section class:list={['location', className]} aria-labelledby="ubicacion-titulo">
+  <Heading id="ubicacion-titulo">Ubicación</Heading>
+  <p>
+    Las casas están en El Marquesado, sobre la costa, a metros de la playa cruzando la ruta costera.
+    La referencia más cercana es <strong>Miramar</strong>, seguida de Chapadmalal; Mar del Plata
+    queda bastante más lejos, a unos 40 minutos en auto.
+  </p>
+  <p>
+    A pocos minutos caminando están el balneario El Marquesado y la playa La Escondida, de uso
+    naturista.
+  </p>
+  <div class="location__map">
+    <iframe
+      src={embedSrc}
+      loading="lazy"
+      title="Mapa de la ubicación de Las Petras — Casas de Mar, en El Marquesado"
+      referrerpolicy="no-referrer-when-downgrade"
+    ></iframe>
+  </div>
+  <a href={externalMapsUrl} target="_blank" rel="noopener noreferrer" class="location__link">
+    Abrir la ubicación en el mapa
+  </a>
+</section>
+
+<style>
+  .location {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .location__map {
+    aspect-ratio: 16 / 10;
+    width: 100%;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background: var(--color-sand-100);
+  }
+
+  .location__map iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .location__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-target-min);
+    font-weight: 600;
+  }
+</style>

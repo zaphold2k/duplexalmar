@@ -17,11 +17,18 @@ export default defineConfig({
     baseURL: 'http://localhost:4321',
     trace: 'on-first-retry',
   },
+  globalSetup: './e2e/global-setup.ts',
+  globalTeardown: './e2e/global-teardown.ts',
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: 'npm run dev',
+    // `astro dev` se demoniza solo en este entorno (detecta un agente de IA y
+    // corre en segundo plano), lo que confunde el manejo de procesos de
+    // Playwright. Se usa el server de producción en foreground en su lugar:
+    // más fiel a lo real, y `--env-file` reemplaza la carga de `.env` que en
+    // producción no ocurre sola (ver server/config).
+    command: 'npm run build && node --env-file=.env dist/server/entry.mjs',
     url: 'http://localhost:4321',
     reuseExistingServer: !process.env.CI,
-    timeout: 30_000,
+    timeout: 60_000,
   },
 });

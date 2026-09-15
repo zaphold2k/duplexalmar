@@ -31,14 +31,14 @@
 
 ## 5. Sitio público
 
-- [ ] 5.1 Implementar el componente de imagen responsiva que emite `srcset` con las variantes existentes, declara dimensiones para reservar el espacio y difiere la carga fuera de la vista inicial, y verificar que la página de una casa no desplaza su contenido mientras cargan las imágenes
-- [ ] 5.2 Implementar la página de inicio con portada a pantalla completa, presentación, acceso a las dos casas, franja de ubicación y contacto, y verificar que renderiza con el manifest vacío mostrando la imagen de reserva
-- [ ] 5.3 Implementar la página de casa por slug con portada, descripción, servicios, capacidad y llamada a la acción, y verificar que un slug inexistente responde 404 con una página de error que ofrece volver al inicio
-- [ ] 5.4 Implementar la galería con vista ampliada operable con gestos y con teclado (avanzar, retroceder, cerrar), y verificar con un test de navegador que las teclas de flecha y escape funcionan y que el foco vuelve al elemento de origen al cerrar
-- [ ] 5.5 Implementar la sección de ubicación con el mapa de carga diferida, la descripción de la zona y el enlace a la aplicación de mapas externa, y verificar que el mapa no bloquea la primera visualización de la página
-- [ ] 5.6 Implementar el acceso a WhatsApp con mensaje prellenado por contexto, incluido el acceso permanente en celular, y verificar que desde la página de cada casa el mensaje menciona esa casa y desde el inicio es genérico
-- [ ] 5.7 Implementar los metadatos de página y de vista previa social usando la portada vigente de cada casa, y verificar que cambiar la portada cambia la imagen declarada en la vista previa
-- [ ] 5.8 Configurar los encabezados de caché: inmutable de larga duración para `/images/`, sin caché compartida de larga duración para el HTML, y verificar con una petición que cada tipo de recurso responde con el encabezado esperado
+- [x] 5.1 Implementar el componente de imagen responsiva que emite `srcset` con las variantes existentes, declara dimensiones para reservar el espacio y difiere la carga fuera de la vista inicial, y verificar que la página de una casa no desplaza su contenido mientras cargan las imágenes
+- [x] 5.2 Implementar la página de inicio con portada a pantalla completa, presentación, acceso a las dos casas, franja de ubicación y contacto, y verificar que renderiza con el manifest vacío mostrando la imagen de reserva
+- [x] 5.3 Implementar la página de casa por slug con portada, descripción, servicios, capacidad y llamada a la acción, y verificar que un slug inexistente responde 404 con una página de error que ofrece volver al inicio
+- [x] 5.4 Implementar la galería con vista ampliada operable con gestos y con teclado (avanzar, retroceder, cerrar), y verificar con un test de navegador que las teclas de flecha y escape funcionan y que el foco vuelve al elemento de origen al cerrar
+- [x] 5.5 Implementar la sección de ubicación con el mapa de carga diferida, la descripción de la zona y el enlace a la aplicación de mapas externa, y verificar que el mapa no bloquea la primera visualización de la página
+- [x] 5.6 Implementar el acceso a WhatsApp con mensaje prellenado por contexto, incluido el acceso permanente en celular, y verificar que desde la página de cada casa el mensaje menciona esa casa y desde el inicio es genérico
+- [x] 5.7 Implementar los metadatos de página y de vista previa social usando la portada vigente de cada casa, y verificar que cambiar la portada cambia la imagen declarada en la vista previa
+- [x] 5.8 Configurar los encabezados de caché: inmutable de larga duración para `/images/`, sin caché compartida de larga duración para el HTML, y verificar con una petición que cada tipo de recurso responde con el encabezado esperado
 
 ## 6. Autenticación del panel
 

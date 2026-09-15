@@ -47,6 +47,10 @@ canvas,
 svg {
   display: block;
   max-width: 100%;
+  /* Con los atributos width/height del HTML, esto reserva el espacio por su
+     relación de aspecto intrínseca mientras la imagen carga (ver spec
+     galeria-casas, "Estabilidad del diseño durante la carga"). */
+  height: auto;
 }
 
 /* Ningún contenedor de texto tiene una altura fija que lo recorte al crecer la fuente. */

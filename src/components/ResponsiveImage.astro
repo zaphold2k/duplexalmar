@@ -1,0 +1,56 @@
+---
+import type { HouseSlug } from '../content/houses';
+import { applicableVariantWidths, imageVariantUrl } from '../server/images';
+
+export interface Props {
+  houseSlug: HouseSlug;
+  imageId: string;
+  /** Dimensiones originales (ya orientadas) de la imagen, tal como quedaron en el manifest. */
+  width: number;
+  height: number;
+  alt: string;
+  /** Atributo `sizes`: depende del layout donde se use (hero, miniatura, etc). */
+  sizes: string;
+  loading?: 'eager' | 'lazy';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  class?: string;
+}
+
+const {
+  houseSlug,
+  imageId,
+  width,
+  height,
+  alt,
+  sizes,
+  loading = 'lazy',
+  fetchpriority = 'auto',
+  class: className,
+} = Astro.props;
+
+const widths = applicableVariantWidths(width);
+// Un original real (foto de iPhone) siempre supera los 480px, así que
+// `widths` nunca está vacío en la práctica; ante un caso degenerado, se
+// asume igualmente la variante de 480 en vez de no emitir ninguna imagen.
+const largestWidth = widths.at(-1) ?? 480;
+const src = imageVariantUrl(houseSlug, imageId, largestWidth);
+const srcset = (widths.length > 0 ? widths : [480])
+  .map(
+    (variantWidth) =>
+      `${imageVariantUrl(houseSlug, imageId, variantWidth)} ${String(variantWidth)}w`,
+  )
+  .join(', ');
+---
+
+<img
+  src={src}
+  srcset={srcset}
+  sizes={sizes}
+  width={width}
+  height={height}
+  alt={alt}
+  loading={loading}
+  fetchpriority={fetchpriority}
+  decoding="async"
+  class={className}
+/>

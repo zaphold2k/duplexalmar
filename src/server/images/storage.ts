@@ -1,22 +1,11 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { ImageFormat } from './detect-format';
+import { originalFileName, variantFileName } from './filenames';
 import type { ProcessedImage } from './process-image';
 
 function imagesDir(dataDir: string, houseSlug: string): string {
   return path.join(dataDir, 'images', houseSlug);
-}
-
-function originalExtension(format: ImageFormat): string {
-  return format === 'jpeg' ? 'jpg' : format;
-}
-
-function originalFileName(id: string, format: ImageFormat): string {
-  return `${id}.orig.${originalExtension(format)}`;
-}
-
-function variantFileName(id: string, width: number): string {
-  return `${id}-${String(width)}.webp`;
 }
 
 /**

@@ -18,6 +18,16 @@ export interface ProcessedImage {
   variants: ImageVariant[];
 }
 
+/**
+ * Anchos de variante que corresponden a un original de un ancho dado, sin
+ * agrandarlo nunca. La usan tanto el pipeline (para saber qué generar) como
+ * el sitio público (para saber qué `srcset` declarar sin tener que
+ * persistir la lista en el manifest).
+ */
+export function applicableVariantWidths(originalWidth: number): VariantWidth[] {
+  return VARIANT_WIDTHS.filter((variantWidth) => variantWidth <= originalWidth);
+}
+
 function orientedDimensions(meta: Metadata): { width: number; height: number } {
   // `sharp` ya expone las dimensiones con la orientación EXIF aplicada.
   return meta.autoOrient;
@@ -55,7 +65,7 @@ async function toOrientedSource(buffer: Buffer, format: ImageFormat): Promise<Or
  */
 export async function processImage(buffer: Buffer, format: ImageFormat): Promise<ProcessedImage> {
   const { pipeline, width, height } = await toOrientedSource(buffer, format);
-  const applicableWidths = VARIANT_WIDTHS.filter((variantWidth) => variantWidth <= width);
+  const applicableWidths = applicableVariantWidths(width);
 
   const variants: ImageVariant[] = [];
   for (const variantWidth of applicableWidths) {
