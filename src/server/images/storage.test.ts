@@ -2,7 +2,7 @@ import { mkdtemp, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { saveProcessedImage } from './storage';
+import { deleteImageFiles, saveProcessedImage } from './storage';
 
 let dataDir: string;
 
@@ -51,5 +51,35 @@ describe('saveProcessedImage', () => {
 
     expect(files.every((name) => name.startsWith('server-generated-id-'))).toBe(true);
     expect(files.some((name) => name.includes('etc') || name.includes('passwd'))).toBe(false);
+  });
+});
+
+describe('deleteImageFiles', () => {
+  it('elimina el original y todas las variantes de una imagen, sin tocar las de otras', async () => {
+    const targetId = 'target-id';
+    const otherId = 'other-id';
+    await saveProcessedImage(dataDir, 'casa-rosa', targetId, Buffer.from('bytes'), 'jpeg', {
+      width: 1200,
+      height: 800,
+      variants: [
+        { width: 480, buffer: Buffer.from('v480') },
+        { width: 900, buffer: Buffer.from('v900') },
+      ],
+    });
+    await saveProcessedImage(dataDir, 'casa-rosa', otherId, Buffer.from('bytes'), 'jpeg', {
+      width: 480,
+      height: 320,
+      variants: [{ width: 480, buffer: Buffer.from('v480') }],
+    });
+
+    await deleteImageFiles(dataDir, 'casa-rosa', targetId);
+
+    const files = await readdir(path.join(dataDir, 'images', 'casa-rosa'));
+    expect(files.some((name) => name.startsWith(targetId))).toBe(false);
+    expect(files.filter((name) => name.startsWith(otherId))).toHaveLength(2);
+  });
+
+  it('no falla si la casa todavía no tiene ningún archivo', async () => {
+    await expect(deleteImageFiles(dataDir, 'casa-verde', 'no-existe')).resolves.toBeUndefined();
   });
 });

@@ -1,5 +1,5 @@
 ---
-import type { HouseSlug } from '../content/houses';
+import { effectiveImageAlt, getHouseContent, type HouseSlug } from '../content/houses';
 import { applicableVariantWidths, imageVariantUrl } from '../server/images';
 import ResponsiveImage from './ResponsiveImage.astro';
 
@@ -9,6 +9,7 @@ export interface Props {
 }
 
 const { houseSlug, images } = Astro.props;
+const houseName = getHouseContent(houseSlug).name;
 
 const lightboxImages = images.map((image) => {
   const widths = applicableVariantWidths(image.width);
@@ -18,7 +19,7 @@ const lightboxImages = images.map((image) => {
     srcset: (widths.length > 0 ? widths : [480])
       .map((w) => `${imageVariantUrl(houseSlug, image.id, w)} ${String(w)}w`)
       .join(', '),
-    alt: image.alt,
+    alt: effectiveImageAlt(image.alt, houseName),
     width: image.width,
     height: image.height,
   };
@@ -34,7 +35,7 @@ const lightboxImages = images.map((image) => {
             type="button"
             class="gallery__thumb"
             data-lightbox-trigger
-            aria-label={`Ampliar foto ${String(index + 1)} de ${String(images.length)}: ${image.alt}`}
+            aria-label={`Ampliar foto ${String(index + 1)} de ${String(images.length)}: ${effectiveImageAlt(image.alt, houseName)}`}
           >
             <ResponsiveImage
               houseSlug={houseSlug}

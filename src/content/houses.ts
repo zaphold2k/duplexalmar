@@ -117,3 +117,12 @@ export function getHouseContent(slug: HouseSlug): HouseContent {
 export function isHouseSlug(value: string): value is HouseSlug {
   return (HOUSE_SLUGS as readonly string[]).includes(value);
 }
+
+/**
+ * Texto alternativo a publicar: el cargado por el anfitrión, o un texto de
+ * reserva que menciona la casa cuando no cargó ninguno (ver spec
+ * galeria-casas, "Imagen sin texto alternativo").
+ */
+export function effectiveImageAlt(alt: string, houseName: string): string {
+  return alt.trim().length > 0 ? alt : `Foto de ${houseName}`;
+}

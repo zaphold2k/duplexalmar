@@ -2,26 +2,11 @@ import path from 'node:path';
 import { expect, test } from '@playwright/test';
 import { readManifest, setCover, writeManifest } from '../src/server/houses';
 
-test.describe('estado vacío', () => {
-  test('la home renderiza con el manifest vacío mostrando la imagen de reserva', async ({
-    page,
-  }) => {
-    // casa-verde no recibe fotos en el global-setup: queda con la galería vacía.
-    await page.goto('/');
-
-    const verdeCard = page.locator('.house-card', { hasText: 'Casa Verde' });
-    await expect(verdeCard.locator('img')).toHaveAttribute('src', '/images/reserve-cover.jpg');
-  });
-
-  test('la página de una casa sin fotos muestra la imagen de reserva en la portada', async ({
-    page,
-  }) => {
-    await page.goto('/casa-verde');
-
-    const hero = page.locator('.house-hero__image');
-    await expect(hero).toHaveAttribute('src', '/images/reserve-cover.jpg');
-  });
-});
+// El estado vacío (manifest sin fotos → imagen de reserva, tareas 5.2/5.3) se
+// verifica en global-setup.ts, antes de subir ninguna foto: es el único
+// momento en que hay una casa genuinamente vacía para probarlo, porque tanto
+// este setup como admin-panel.spec.ts siembran fotos reales en las dos casas
+// para el resto de los tests de navegador.
 
 test.describe('metadatos y vista previa social', () => {
   test('cada página declara título, descripción e imagen de vista previa', async ({ page }) => {

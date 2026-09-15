@@ -1,8 +1,6 @@
 ---
+import { getHouseContent, HOUSE_SLUGS } from '../../content/houses';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-
-// Placeholder protegido por el guardia de sesión (ver src/middleware.ts): la
-// selección de casa y la galería se construyen en la tarea 7.1.
 ---
 
 <BaseLayout
@@ -12,7 +10,19 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 >
   <main class="panel">
     <h1>Panel</h1>
-    <p>Sesión iniciada.</p>
+    <p>Elegí una casa para administrar sus fotos.</p>
+    <ul class="panel__houses">
+      {HOUSE_SLUGS.map((slug) => {
+        const house = getHouseContent(slug);
+        return (
+          <li>
+            <a href={`/admin/${slug}`} class="panel__house-link">
+              {house.name}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
     <form method="post" action="/admin/logout">
       <button type="submit" class="panel__logout">
         Cerrar sesión
@@ -23,7 +33,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 <style>
   .panel {
-    max-width: 24rem;
+    max-width: 28rem;
     margin: var(--space-6) auto;
     padding: 0 var(--space-4);
     display: flex;
@@ -31,7 +41,29 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     gap: var(--space-4);
   }
 
+  .panel__houses {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .panel__house-link {
+    display: flex;
+    align-items: center;
+    min-height: var(--touch-target-min);
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    text-decoration: none;
+    color: inherit;
+  }
+
   .panel__logout {
+    align-self: flex-start;
     min-height: var(--touch-target-min);
     padding: var(--space-2) var(--space-4);
     border: 1px solid var(--color-border);

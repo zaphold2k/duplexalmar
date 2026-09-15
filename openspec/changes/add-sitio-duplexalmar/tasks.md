@@ -50,13 +50,13 @@
 
 ## 7. Panel de administración
 
-- [ ] 7.1 Implementar la selección de casa y la vista de su galería con miniaturas, indicando cuál es la portada, y verificar que refleja el manifest incluido el caso de galería vacía
-- [ ] 7.2 Implementar el endpoint de subida multiparte con los topes de tamaño por archivo y de cantidad por lote, y verificar con tests que un archivo excedido y un archivo no imagen se rechazan individualmente sin abortar el lote
-- [ ] 7.3 Implementar la interfaz de subida con selección múltiple desde galería o cámara, indicador de avance y resumen final que separa las fotos cargadas de las fallidas con su motivo, y verificar subiendo un lote mixto desde un iPhone
-- [ ] 7.4 Implementar la designación de portada desde el panel y verificar que el sitio público la refleja en la siguiente carga sin redesplegar
-- [ ] 7.5 Implementar el reordenamiento mediante botones discretos de mover hacia adelante y hacia atrás, y verificar que el nuevo orden persiste y se refleja en el sitio público
-- [ ] 7.6 Implementar la eliminación con confirmación explícita, que borra el original y todas las variantes, y verificar con un test que tras eliminar no quedan archivos de esa imagen en disco ni referencias en el manifest
-- [ ] 7.7 Implementar la edición del texto alternativo por imagen y verificar que el sitio público publica el texto cargado y usa el de reserva cuando está vacío
+- [x] 7.1 Implementar la selección de casa y la vista de su galería con miniaturas, indicando cuál es la portada, y verificar que refleja el manifest incluido el caso de galería vacía
+- [x] 7.2 Implementar el endpoint de subida multiparte con los topes de tamaño por archivo y de cantidad por lote, y verificar con tests que un archivo excedido y un archivo no imagen se rechazan individualmente sin abortar el lote
+- [ ] 7.3 Implementar la interfaz de subida con selección múltiple desde galería o cámara, indicador de avance y resumen final que separa las fotos cargadas de las fallidas con su motivo, y verificar subiendo un lote mixto desde un iPhone — implementado y probado con un lote mixto real vía navegador; falta la verificación desde un iPhone real (pendiente, ver resumen del hito)
+- [x] 7.4 Implementar la designación de portada desde el panel y verificar que el sitio público la refleja en la siguiente carga sin redesplegar
+- [x] 7.5 Implementar el reordenamiento mediante botones discretos de mover hacia adelante y hacia atrás, y verificar que el nuevo orden persiste y se refleja en el sitio público
+- [x] 7.6 Implementar la eliminación con confirmación explícita, que borra el original y todas las variantes, y verificar con un test que tras eliminar no quedan archivos de esa imagen en disco ni referencias en el manifest
+- [x] 7.7 Implementar la edición del texto alternativo por imagen y verificar que el sitio público publica el texto cargado y usa el de reserva cuando está vacío
 
 ## 8. Accesibilidad y verificación en dispositivo
 

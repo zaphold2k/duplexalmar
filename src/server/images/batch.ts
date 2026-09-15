@@ -28,6 +28,12 @@ export type BatchItemResult = BatchItemSuccess | BatchItemFailure;
 export interface ProcessUploadBatchDeps {
   now?: () => string;
   generateId?: () => string;
+  /** Límite de tamaño por archivo, en bytes. Sin tope si se omite. */
+  maxFileSizeBytes?: number;
+}
+
+function formatMaxSize(bytes: number): string {
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 /**
@@ -48,6 +54,15 @@ export async function processUploadBatch(
 
   for (const file of files) {
     try {
+      if (deps.maxFileSizeBytes !== undefined && file.buffer.length > deps.maxFileSizeBytes) {
+        results.push({
+          clientFileName: file.clientFileName,
+          status: 'failed',
+          reason: `El archivo supera el límite de tamaño permitido (${formatMaxSize(deps.maxFileSizeBytes)})`,
+        });
+        continue;
+      }
+
       const format = detectImageFormat(file.buffer);
       if (format === null) {
         results.push({

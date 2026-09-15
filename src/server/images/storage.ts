@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import type { ImageFormat } from './detect-format';
 import { originalFileName, variantFileName } from './filenames';
@@ -30,4 +30,25 @@ export async function saveProcessedImage(
   for (const variant of processed.variants) {
     await writeFile(path.join(dir, variantFileName(id, variant.width)), variant.buffer);
   }
+}
+
+/**
+ * Elimina el original y todas las variantes de una imagen. No deja archivos
+ * huérfanos (ver spec admin-imagenes, "Eliminación con confirmación").
+ */
+export async function deleteImageFiles(
+  dataDir: string,
+  houseSlug: string,
+  id: string,
+): Promise<void> {
+  const dir = imagesDir(dataDir, houseSlug);
+  let entries: string[];
+  try {
+    entries = await readdir(dir);
+  } catch {
+    return;
+  }
+
+  const ownFiles = entries.filter((name) => name.startsWith(`${id}.`) || name.startsWith(`${id}-`));
+  await Promise.all(ownFiles.map((name) => rm(path.join(dir, name), { force: true })));
 }

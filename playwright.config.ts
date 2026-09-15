@@ -12,6 +12,11 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
+  // Un solo worker: todos los tests comparten un único server real (mismo
+  // `/data`, mismo limitador de login en memoria por IP). Correrlos en
+  // paralelo entre archivos hacía flakiness cruzada (p. ej. un fallo de
+  // login de un archivo demorando el login correcto de otro).
+  workers: 1,
   reporter: 'list',
   use: {
     baseURL: 'http://localhost:4321',

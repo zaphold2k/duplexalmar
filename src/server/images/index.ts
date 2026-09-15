@@ -9,7 +9,7 @@ export type { ImageVariant, ProcessedImage, VariantWidth } from './process-image
 
 export { generateImageId } from './id-generator';
 
-export { saveProcessedImage } from './storage';
+export { deleteImageFiles, saveProcessedImage } from './storage';
 
 export { originalFileName, variantFileName } from './filenames';
 

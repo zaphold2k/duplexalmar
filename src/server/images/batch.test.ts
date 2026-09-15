@@ -94,4 +94,39 @@ describe('processUploadBatch', () => {
     expect(Object.keys(manifest.images).sort()).toEqual(['id-1', 'id-2']);
     expect(results[2]).toMatchObject({ status: 'uploaded', imageId: 'id-2' });
   });
+
+  it('un archivo que excede el límite de tamaño se rechaza sin abortar el resto del lote', async () => {
+    const small = await validJpeg({ r: 200, g: 0, b: 0 });
+    // Ruido aleatorio de gran tamaño: comprime mal a propósito, para que sea
+    // de forma confiable más pesado que `small` (un JPEG de color sólido
+    // comprime casi al mismo tamaño sin importar el color).
+    const large = await sharp({
+      create: {
+        width: 2000,
+        height: 2000,
+        channels: 3,
+        background: { r: 0, g: 0, b: 0 },
+        noise: { type: 'gaussian', mean: 128, sigma: 40 },
+      },
+    })
+      .jpeg({ quality: 100 })
+      .toBuffer();
+    expect(large.length).toBeGreaterThan(small.length);
+
+    const files: UploadedFile[] = [
+      { clientFileName: 'chica.jpg', buffer: small },
+      { clientFileName: 'grande.jpg', buffer: large },
+    ];
+
+    const results = await processUploadBatch(dataDir, 'casa-rosa', files, {
+      generateId: sequentialIds(),
+      maxFileSizeBytes: Math.floor((small.length + large.length) / 2),
+    });
+
+    expect(results[0]).toMatchObject({ status: 'uploaded' });
+    expect(results[1]?.status).toBe('failed');
+    if (results[1]?.status === 'failed') {
+      expect(results[1].reason).toMatch(/supera el límite de tamaño/i);
+    }
+  });
 });
