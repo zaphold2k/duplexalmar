@@ -8,10 +8,10 @@
 
 ## 2. Almacenamiento y manifest
 
-- [ ] 2.1 Definir el tipo del manifest de casa (`version`, `cover`, `gallery`, `images`) y su validación de esquema, y verificar con tests que un manifest malformado se rechaza con un error descriptivo
-- [ ] 2.2 Implementar la lectura del manifest con creación implícita del estado vacío cuando el archivo no existe, y verificar con un test que una casa sin archivo devuelve galería vacía y portada nula en lugar de fallar
-- [ ] 2.3 Implementar la escritura atómica del manifest mediante archivo temporal y renombrado, serializada con un mutex en proceso, y verificar con un test que escrituras concurrentes no se pisan y que el archivo destino nunca queda truncado
-- [ ] 2.4 Implementar las operaciones de dominio sobre el manifest (agregar imagen, designar portada, mover posición, eliminar imagen, editar texto alternativo) y verificar con tests que cubren el orden resultante, la portada de reserva cuando se elimina la portada, y el rechazo de designar como portada un identificador inexistente
+- [x] 2.1 Definir el tipo del manifest de casa (`version`, `cover`, `gallery`, `images`) y su validación de esquema, y verificar con tests que un manifest malformado se rechaza con un error descriptivo
+- [x] 2.2 Implementar la lectura del manifest con creación implícita del estado vacío cuando el archivo no existe, y verificar con un test que una casa sin archivo devuelve galería vacía y portada nula en lugar de fallar
+- [x] 2.3 Implementar la escritura atómica del manifest mediante archivo temporal y renombrado, serializada con un mutex en proceso, y verificar con un test que escrituras concurrentes no se pisan y que el archivo destino nunca queda truncado
+- [x] 2.4 Implementar las operaciones de dominio sobre el manifest (agregar imagen, designar portada, mover posición, eliminar imagen, editar texto alternativo) y verificar con tests que cubren el orden resultante, la portada de reserva cuando se elimina la portada, y el rechazo de designar como portada un identificador inexistente
 
 ## 3. Pipeline de imágenes
 
