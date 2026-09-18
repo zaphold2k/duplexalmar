@@ -22,6 +22,18 @@ test.describe('sección de ubicación', () => {
     await expect(link).toHaveAttribute('target', '_blank');
   });
 
+  test('el mapa y el enlace externo apuntan a la ficha de las casas, no a la localidad', async ({
+    page,
+  }) => {
+    await page.goto('/ubicacion');
+
+    const placeId = /cid=852154642348760509/;
+    await expect(page.locator('.location__map iframe')).toHaveAttribute('src', placeId);
+    await expect(
+      page.getByRole('link', { name: /abrir la ubicación en el mapa/i }),
+    ).toHaveAttribute('href', placeId);
+  });
+
   test('el inicio referencia la ubicación con un enlace a la página dedicada', async ({ page }) => {
     await page.goto('/');
 

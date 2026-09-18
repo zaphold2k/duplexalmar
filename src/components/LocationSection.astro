@@ -7,12 +7,13 @@ export interface Props {
 const { class: className, headingLevel = 'h2' } = Astro.props;
 const Heading = headingLevel;
 
-// Búsqueda por nombre de lugar, no coordenadas exactas: el anfitrión todavía
-// tiene que confirmar la posición precisa (ver design.md, anexo "Ubicación y
-// distancias" — "Verificar antes de publicarlas").
-const placeQuery = 'El Marquesado, Mar del Plata, Buenos Aires, Argentina';
-const embedSrc = `https://www.google.com/maps?q=${encodeURIComponent(placeQuery)}&output=embed`;
-const externalMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeQuery)}`;
+// Identificador de la ficha "Las Petras, Casas de Mar" en Google Maps (el
+// `cid` del enlace "compartir" de la ficha), provisto por el anfitrión. Con
+// él, tanto el mapa embebido como el enlace externo caen en el pin exacto de
+// las casas, no en el centro de El Marquesado.
+const placeId = '852154642348760509';
+const embedSrc = `https://www.google.com/maps?cid=${placeId}&output=embed&hl=es`;
+const externalMapsUrl = `https://www.google.com/maps?cid=${placeId}`;
 ---
 
 <section class:list={['location', className]} aria-labelledby="ubicacion-titulo">
