@@ -148,9 +148,16 @@ const ogImagePath =
     position: relative;
   }
 
+  /*
+   * 65% del alto de la ventana, en cualquier pantalla: así siempre asoma
+   * el contenido que sigue debajo de la foto. `svh` toma el alto con la
+   * barra del navegador del celular visible (el caso más chico), para que
+   * el corte no cambie al desplazarse; `vh` queda de reserva.
+   */
   .house-hero__image {
     width: 100%;
-    aspect-ratio: 16 / 10;
+    height: 65vh;
+    height: 65svh;
     object-fit: cover;
   }
 

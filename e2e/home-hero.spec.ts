@@ -103,6 +103,25 @@ test.describe('subida, reemplazo y publicación', () => {
     expect(box?.width).toBe(1440);
   });
 
+  test('la foto de inicio ocupa el 65% del alto de la ventana y deja ver el contenido', async ({
+    page,
+  }) => {
+    for (const viewport of [
+      { width: 1920, height: 1080 },
+      { width: 390, height: 844 },
+    ]) {
+      await page.setViewportSize(viewport);
+      await page.goto('/');
+
+      const box = await page.locator('.hero__image').boundingBox();
+      expect(box?.height, `alto a ${String(viewport.width)}px`).toBeCloseTo(
+        viewport.height * 0.65,
+        0,
+      );
+      await expect(page.locator('main p').first()).toBeInViewport();
+    }
+  });
+
   test('subir otra foto reemplaza la vigente y borra los archivos de la anterior', async ({
     page,
   }) => {
