@@ -1,0 +1,40 @@
+# Server bajo prueba para la suite e2e. Es un archivo aparte, que NO se carga
+# solo: hay que pasarlo con `-f` (lo hace `npm run test:e2e:docker`). Así ni
+# comparte el proyecto de Compose con el despliegue de docker-compose.yml, ni
+# arrastra el docker-compose.override.yml que monta el `./data` de desarrollo.
+#
+# Los tests corren en el host (Playwright) y siembran/leen el directorio de
+# datos directamente (ver e2e/env.ts), por eso `/data` es un bind mount a
+# `./data-e2e` y no un volumen nombrado. Ese directorio lo crea el script
+# antes del `up` para que no lo cree Docker como root, y lo borra el
+# global-teardown al terminar.
+name: duplexalmar-e2e
+
+services:
+  app:
+    build: .
+    env_file:
+      - .env.e2e
+    environment:
+      DATA_DIR: /data
+    volumes:
+      - ./data-e2e:/data
+    ports:
+      # 4322 en el host para no chocar con el `npm run dev` (4321) ni con el
+      # proxy del despliegue (8020).
+      - '127.0.0.1:4322:4321'
+    mem_limit: 512m
+    # Intervalo corto: `docker compose up --wait` espera este healthcheck y
+    # cada segundo de espera se paga en cada corrida de la suite.
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://localhost:4321/').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+      start_period: 3s

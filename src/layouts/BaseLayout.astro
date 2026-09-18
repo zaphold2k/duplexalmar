@@ -1,0 +1,71 @@
+---
+import '../styles/tokens.css';
+import '../styles/base.css';
+import type { HouseSlug } from '../content/houses';
+
+export interface Props {
+  title: string;
+  description: string;
+  house?: HouseSlug;
+  /** Ruta absoluta de la imagen de vista previa social (og:image). */
+  ogImagePath?: string | undefined;
+  /** El panel privado no debe indexarse ni salir en vistas previas. */
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description,
+  house,
+  ogImagePath = '/images/reserve-cover.jpg',
+  noindex = false,
+} = Astro.props;
+const ogImageUrl = new URL(ogImagePath, Astro.url.origin).toString();
+---
+
+<html lang="es" data-house={house}>
+  <head>
+    <meta charset="utf-8" />
+    <!--
+      Sin `maximum-scale` ni `user-scalable=no`: el zoom del visitante nunca
+      se bloquea (ver spec sitio-publico, "Accesibilidad con texto agrandado").
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="icon" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <title>{title}</title>
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <script is:inline>
+      // Tope al crecimiento del tamaño de fuente raíz que trajo Dynamic Type
+      // (`font: -apple-system-body` en base.css). CSS no puede acotar una
+      // propiedad contra su propio valor en el mismo elemento —`em` en
+      // `font-size` mira al padre, y `html` no tiene—, así que se lee el
+      // tamaño ya calculado y se reescribe una vez, antes del primer pintado,
+      // para que toda la escala tipográfica (en `rem`) herede el valor acotado.
+      (function capRootFontSize() {
+        var MIN_PX = 16;
+        var MAX_PX = 28;
+        var root = document.documentElement;
+        var current = parseFloat(getComputedStyle(root).fontSize);
+        if (!Number.isFinite(current)) return;
+        var capped = Math.min(Math.max(current, MIN_PX), MAX_PX);
+        if (capped !== current) {
+          root.style.fontSize = capped + 'px';
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

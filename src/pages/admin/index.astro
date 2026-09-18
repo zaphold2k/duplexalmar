@@ -1,0 +1,264 @@
+---
+import ResponsiveImage from '../../components/ResponsiveImage.astro';
+import { getHouseContent, HOUSE_SLUGS } from '../../content/houses';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { config } from '../../server/config';
+import { getHomeHeroImage, HOME_HERO_SLUG } from '../../server/home-hero';
+
+const heroImage = await getHomeHeroImage(config.dataDir);
+---
+
+<BaseLayout
+  title="Panel — Las Petras — Casas de Mar"
+  description="Panel de administración."
+  noindex
+>
+  <main class="panel">
+    <h1>Panel</h1>
+
+    <section aria-labelledby="casas-titulo" class="panel__section">
+      <h2 id="casas-titulo">Casas</h2>
+      <p>Elegí una casa para administrar sus fotos.</p>
+      <ul class="panel__houses">
+        {HOUSE_SLUGS.map((slug) => {
+          const house = getHouseContent(slug);
+          return (
+            <li>
+              <a href={`/admin/${slug}`} class="panel__house-link">
+                {house.name}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+
+    <section aria-labelledby="portada-inicio-titulo" class="panel__section" data-home-hero>
+      <h2 id="portada-inicio-titulo">Foto principal de inicio</h2>
+      <p>Es la foto a pantalla completa que se ve al abrir el sitio.</p>
+      {heroImage ? (
+        <div class="home-hero__current">
+          <ResponsiveImage
+            houseSlug={HOME_HERO_SLUG}
+            imageId={heroImage.id}
+            width={heroImage.width}
+            height={heroImage.height}
+            alt="Foto principal de inicio vigente"
+            sizes="(min-width: 640px) 28rem, 100vw"
+            class="home-hero__thumb"
+          />
+          <button type="button" data-action="delete-home-hero" class="home-hero__delete">
+            Quitar foto principal
+          </button>
+        </div>
+      ) : (
+        <p data-home-hero-empty>
+          Todavía no hay una foto propia: el inicio muestra la imagen de reserva.
+        </p>
+      )}
+      <form data-home-hero-form class="upload-form">
+        <label class="upload-form__field">
+          <span>
+            {heroImage
+              ? 'Reemplazarla por otra foto de la galería o de la cámara'
+              : 'Elegí una foto de la galería o sacá una con la cámara'}
+          </span>
+          <input type="file" name="file" accept="image/*" required />
+        </label>
+        <button type="submit" class="upload-form__submit">
+          Subir foto principal
+        </button>
+        <p data-home-hero-progress role="status" aria-live="polite" hidden />
+        <p data-home-hero-result role="alert" hidden />
+      </form>
+    </section>
+
+    <form method="post" action="/admin/logout">
+      <button type="submit" class="panel__logout">
+        Cerrar sesión
+      </button>
+    </form>
+  </main>
+</BaseLayout>
+
+<style>
+  .panel {
+    max-width: 28rem;
+    margin: var(--space-6) auto;
+    padding: 0 var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .panel__section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .panel__houses {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .panel__house-link {
+    display: flex;
+    align-items: center;
+    min-height: var(--touch-target-min);
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .home-hero__current {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-2);
+  }
+
+  .home-hero__thumb {
+    width: 100%;
+    border-radius: var(--radius-sm);
+  }
+
+  .home-hero__delete {
+    align-self: flex-start;
+    min-height: var(--touch-target-min);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--color-accent-rosa);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .upload-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .upload-form__field input {
+    min-height: var(--touch-target-min);
+  }
+
+  .upload-form__submit {
+    align-self: flex-start;
+    min-height: var(--touch-target-min);
+    padding: var(--space-2) var(--space-4);
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--color-accent);
+    color: var(--color-accent-contrast);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .panel__logout {
+    align-self: flex-start;
+    min-height: var(--touch-target-min);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: none;
+    font-weight: 600;
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  const section = document.querySelector<HTMLElement>('[data-home-hero]');
+  const form = section?.querySelector<HTMLFormElement>('[data-home-hero-form]');
+  const progressEl = section?.querySelector<HTMLElement>('[data-home-hero-progress]');
+  const resultEl = section?.querySelector<HTMLElement>('[data-home-hero-result]');
+
+  interface UploadResponse {
+    result?: { status: 'uploaded' | 'failed'; clientFileName: string; reason?: string };
+    error?: string;
+  }
+
+  function showResult(message: string): void {
+    if (!resultEl) return;
+    resultEl.hidden = false;
+    resultEl.textContent = message;
+  }
+
+  section?.querySelector('[data-action="delete-home-hero"]')?.addEventListener('click', () => {
+    if (!confirm('¿Quitar la foto principal? El inicio volverá a mostrar la imagen de reserva.')) {
+      return;
+    }
+    void fetch('/api/admin/inicio/delete', { method: 'POST' }).then((response) => {
+      if (response.ok) location.reload();
+      else showResult('No se pudo quitar la foto principal.');
+    });
+  });
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const fileInput = form.querySelector<HTMLInputElement>('input[type="file"]');
+    const file = fileInput?.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/admin/inicio/upload');
+
+    if (progressEl) {
+      progressEl.hidden = false;
+      progressEl.textContent = 'Subiendo… 0%';
+    }
+    if (resultEl) resultEl.hidden = true;
+
+    xhr.upload.addEventListener('progress', (progressEvent) => {
+      if (!progressEvent.lengthComputable || !progressEl) return;
+      const percent = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+      progressEl.textContent = `Subiendo… ${String(percent)}%`;
+    });
+
+    xhr.addEventListener('load', () => {
+      if (progressEl) progressEl.textContent = 'Listo.';
+      try {
+        const body = JSON.parse(xhr.responseText) as UploadResponse;
+        if (body.error) {
+          showResult(body.error);
+          return;
+        }
+        if (body.result?.status === 'uploaded') {
+          location.reload();
+          return;
+        }
+        showResult(
+          `✗ ${body.result?.clientFileName ?? file.name}: ${body.result?.reason ?? 'error desconocido'}`,
+        );
+      } catch {
+        showResult('Ocurrió un error al subir la foto.');
+      }
+    });
+
+    xhr.addEventListener('error', () => {
+      showResult('Ocurrió un error al subir la foto.');
+    });
+
+    xhr.send(formData);
+  });
+</script>

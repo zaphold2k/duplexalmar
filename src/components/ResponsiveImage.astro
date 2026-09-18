@@ -1,0 +1,66 @@
+---
+import { applicableVariantWidths, imageVariantUrl } from '../server/images';
+
+export interface Props {
+  /**
+   * Directorio de la imagen bajo `/images/`: el slug de una casa, o el slug
+   * reservado de la foto principal de inicio (ver server/home-hero). Por eso
+   * es `string` y no `HouseSlug`.
+   */
+  houseSlug: string;
+  imageId: string;
+  /** Dimensiones originales (ya orientadas) de la imagen, tal como quedaron en el manifest. */
+  width: number;
+  height: number;
+  alt: string;
+  /** Atributo `sizes`: depende del layout donde se use (hero, miniatura, etc). */
+  sizes: string;
+  loading?: 'eager' | 'lazy';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  class?: string;
+}
+
+const {
+  houseSlug,
+  imageId,
+  width,
+  height,
+  alt,
+  sizes,
+  loading = 'lazy',
+  fetchpriority = 'auto',
+  class: className,
+  // Astro pasa el atributo `data-astro-cid-*` del padre junto con `class`
+  // cuando la página usa estilos scoped; sin reenviarlo al <img>, reglas
+  // como `.hero__image { width: 100% }` no le aplican y la imagen queda a
+  // su ancho intrínseco, pegada a la izquierda en pantallas grandes.
+  ...rest
+} = Astro.props;
+
+const widths = applicableVariantWidths(width);
+// Un original real (foto de iPhone) siempre supera los 480px, así que
+// `widths` nunca está vacío en la práctica; ante un caso degenerado, se
+// asume igualmente la variante de 480 en vez de no emitir ninguna imagen.
+const largestWidth = widths.at(-1) ?? 480;
+const src = imageVariantUrl(houseSlug, imageId, largestWidth);
+const srcset = (widths.length > 0 ? widths : [480])
+  .map(
+    (variantWidth) =>
+      `${imageVariantUrl(houseSlug, imageId, variantWidth)} ${String(variantWidth)}w`,
+  )
+  .join(', ');
+---
+
+<img
+  src={src}
+  srcset={srcset}
+  sizes={sizes}
+  width={width}
+  height={height}
+  alt={alt}
+  loading={loading}
+  fetchpriority={fetchpriority}
+  decoding="async"
+  class={className}
+  {...rest}
+/>

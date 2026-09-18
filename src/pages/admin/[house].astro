@@ -1,0 +1,357 @@
+---
+import NotFoundContent from '../../components/NotFoundContent.astro';
+import ResponsiveImage from '../../components/ResponsiveImage.astro';
+import { getHouseContent, isHouseSlug, type HouseSlug } from '../../content/houses';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { config } from '../../server/config';
+import { getEffectiveCoverId, readManifest } from '../../server/houses';
+
+const { house: houseParam } = Astro.params;
+const validSlug: HouseSlug | null =
+  houseParam !== undefined && isHouseSlug(houseParam) ? houseParam : null;
+
+if (validSlug === null) {
+  Astro.response.status = 404;
+}
+
+const pageData =
+  validSlug === null
+    ? null
+    : await (async (houseSlug: HouseSlug) => {
+        const house = getHouseContent(houseSlug);
+        const manifest = await readManifest(config.dataDir, houseSlug);
+        const coverId = getEffectiveCoverId(manifest);
+        const images = manifest.gallery.flatMap((id) => {
+          const image = manifest.images[id];
+          return image ? [{ id, ...image }] : [];
+        });
+        return { house, coverId, images };
+      })(validSlug);
+---
+
+{pageData === null ? (
+  <BaseLayout title="Casa no encontrada — Panel" description="Panel de administración." noindex>
+    <NotFoundContent message="Esa casa no existe." />
+  </BaseLayout>
+) : (
+  <BaseLayout
+    title={`${pageData.house.name} — Panel`}
+    description="Panel de administración."
+    noindex
+  >
+    <main class="admin" data-house={pageData.house.slug} data-admin-gallery>
+      <p>
+        <a href="/admin" class="admin__back-link">
+          ← Volver a la selección de casa
+        </a>
+      </p>
+      <h1>{pageData.house.name}</h1>
+
+      <section aria-labelledby="subir-titulo" class="admin__section">
+        <h2 id="subir-titulo">Subir fotos</h2>
+        <form data-upload-form class="upload-form">
+          <label class="upload-form__field">
+            <span>Elegí fotos de la galería o sacá una con la cámara</span>
+            <input type="file" name="files" accept="image/*" multiple required />
+          </label>
+          <button type="submit" class="upload-form__submit">
+            Subir
+          </button>
+          <p data-upload-progress role="status" aria-live="polite" hidden />
+          <ul data-upload-summary class="upload-summary" hidden />
+        </form>
+      </section>
+
+      <section aria-labelledby="galeria-titulo" class="admin__section">
+        <h2 id="galeria-titulo">Galería {pageData.images.length === 0 && '(vacía)'}</h2>
+        <ul class="thumbs">
+          {pageData.images.map((image, index) => (
+            <li class="thumb" data-image-id={image.id}>
+              <div class="thumb__image-wrap">
+                <ResponsiveImage
+                  houseSlug={pageData.house.slug}
+                  imageId={image.id}
+                  width={image.width}
+                  height={image.height}
+                  alt={image.alt}
+                  sizes="(min-width: 640px) 33vw, 50vw"
+                />
+                {image.id === pageData.coverId && <span class="thumb__badge">Portada</span>}
+              </div>
+              <div class="thumb__controls">
+                <button type="button" data-action="cover" disabled={image.id === pageData.coverId}>
+                  Hacer portada
+                </button>
+                <button type="button" data-action="move-forward" disabled={index === 0}>
+                  Mover adelante
+                </button>
+                <button
+                  type="button"
+                  data-action="move-backward"
+                  disabled={index === pageData.images.length - 1}
+                >
+                  Mover atrás
+                </button>
+                <button type="button" data-action="delete" class="thumb__delete">
+                  Eliminar
+                </button>
+              </div>
+              <label class="thumb__alt-field">
+                <span>Texto alternativo</span>
+                <input type="text" data-field="alt" value={image.alt} />
+              </label>
+              <button type="button" data-action="save-alt">
+                Guardar texto
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </main>
+  </BaseLayout>
+)}
+
+<style>
+  .admin {
+    max-width: var(--max-content-width);
+    margin-inline: auto;
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .admin__back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-target-min);
+    font-weight: 600;
+  }
+
+  .admin__section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .upload-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .upload-form__field input {
+    min-height: var(--touch-target-min);
+  }
+
+  .upload-form__submit {
+    align-self: flex-start;
+    min-height: var(--touch-target-min);
+    padding: var(--space-2) var(--space-4);
+    border: none;
+    border-radius: var(--radius-md);
+    background: var(--color-accent);
+    color: var(--color-accent-contrast);
+    font-weight: 600;
+  }
+
+  .upload-summary {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .thumbs {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: var(--space-4);
+  }
+
+  .thumb {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-2);
+  }
+
+  .thumb__image-wrap {
+    position: relative;
+  }
+
+  .thumb__badge {
+    position: absolute;
+    top: var(--space-1);
+    left: var(--space-1);
+    background: var(--color-accent);
+    color: var(--color-accent-contrast);
+    padding: 0.15em 0.6em;
+    border-radius: var(--radius-sm);
+    font-size: var(--step--1);
+    font-weight: 600;
+  }
+
+  .thumb__controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .thumb__controls button,
+  .thumb button[data-action='save-alt'] {
+    min-height: var(--touch-target-min);
+    padding: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: none;
+    cursor: pointer;
+  }
+
+  .thumb__delete {
+    color: var(--color-accent-rosa);
+  }
+
+  .thumb__alt-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .thumb__alt-field input {
+    min-height: var(--touch-target-min);
+    padding: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+  }
+</style>
+
+<script>
+  function actionUrl(action: string): string {
+    const house = document.querySelector<HTMLElement>('[data-admin-gallery]')?.dataset.house ?? '';
+    return `/api/admin/${house}/${action}`;
+  }
+
+  async function postAction(action: string, body: Record<string, string>): Promise<boolean> {
+    const formData = new FormData();
+    for (const [key, value] of Object.entries(body)) formData.set(key, value);
+    const response = await fetch(actionUrl(action), { method: 'POST', body: formData });
+    return response.ok;
+  }
+
+  document.querySelectorAll<HTMLElement>('.thumb').forEach((thumb) => {
+    const imageId = thumb.dataset.imageId ?? '';
+
+    thumb.querySelector('[data-action="cover"]')?.addEventListener('click', () => {
+      void postAction('cover', { imageId }).then((ok) => ok && location.reload());
+    });
+
+    thumb.querySelector('[data-action="move-forward"]')?.addEventListener('click', () => {
+      void postAction('move', { imageId, direction: 'forward' }).then(
+        (ok) => ok && location.reload(),
+      );
+    });
+
+    thumb.querySelector('[data-action="move-backward"]')?.addEventListener('click', () => {
+      void postAction('move', { imageId, direction: 'backward' }).then(
+        (ok) => ok && location.reload(),
+      );
+    });
+
+    thumb.querySelector('[data-action="delete"]')?.addEventListener('click', () => {
+      if (!confirm('¿Eliminar esta foto? Esta acción no se puede deshacer.')) return;
+      void postAction('delete', { imageId }).then((ok) => ok && location.reload());
+    });
+
+    thumb.querySelector('[data-action="save-alt"]')?.addEventListener('click', () => {
+      const input = thumb.querySelector<HTMLInputElement>('[data-field="alt"]');
+      void postAction('alt', { imageId, alt: input?.value ?? '' }).then(
+        (ok) => ok && location.reload(),
+      );
+    });
+  });
+
+  const uploadForm = document.querySelector<HTMLFormElement>('[data-upload-form]');
+  const progressEl = document.querySelector<HTMLElement>('[data-upload-progress]');
+  const summaryEl = document.querySelector<HTMLUListElement>('[data-upload-summary]');
+
+  interface UploadResultItem {
+    clientFileName: string;
+    status: 'uploaded' | 'failed';
+    reason?: string;
+  }
+
+  uploadForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const fileInput = uploadForm.querySelector<HTMLInputElement>('input[type="file"]');
+    const files = fileInput?.files;
+    if (!files || files.length === 0) return;
+
+    const formData = new FormData();
+    for (const file of Array.from(files)) formData.append('files', file);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', actionUrl('upload'));
+
+    if (progressEl) {
+      progressEl.hidden = false;
+      progressEl.textContent = 'Subiendo… 0%';
+    }
+    if (summaryEl) {
+      summaryEl.hidden = true;
+      summaryEl.innerHTML = '';
+    }
+
+    xhr.upload.addEventListener('progress', (progressEvent) => {
+      if (!progressEvent.lengthComputable || !progressEl) return;
+      const percent = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+      progressEl.textContent = `Subiendo… ${String(percent)}%`;
+    });
+
+    xhr.addEventListener('load', () => {
+      if (progressEl) progressEl.textContent = 'Listo.';
+      if (!summaryEl) return;
+
+      try {
+        const body = JSON.parse(xhr.responseText) as {
+          results?: UploadResultItem[];
+          error?: string;
+        };
+        summaryEl.hidden = false;
+        summaryEl.innerHTML = '';
+
+        if (body.error) {
+          const item = document.createElement('li');
+          item.textContent = body.error;
+          summaryEl.appendChild(item);
+          return;
+        }
+
+        for (const result of body.results ?? []) {
+          const item = document.createElement('li');
+          item.textContent =
+            result.status === 'uploaded'
+              ? `✓ ${result.clientFileName}: cargada`
+              : `✗ ${result.clientFileName}: ${result.reason ?? 'error desconocido'}`;
+          summaryEl.appendChild(item);
+        }
+      } catch {
+        if (progressEl) progressEl.textContent = 'Ocurrió un error al subir las fotos.';
+      }
+    });
+
+    xhr.send(formData);
+  });
+</script>
