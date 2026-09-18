@@ -26,7 +26,7 @@
 
 - [x] 4.1 Definir el módulo tipado de contenido de las casas con `casa-rosa` y `casa-verde`, incluyendo descripción, servicios, capacidad y reglas, con textos de relleno marcados como pendientes, y verificar que el tipo obliga a completar todos los campos en ambas casas
 - [x] 4.2 Definir los tokens de diseño (paleta natural de costa con acentos rosa y verde por casa, escala tipográfica en unidades relativas, espaciado) y verificar visualmente en una página de muestra que la escala completa acompaña un cambio del tamaño de fuente raíz
-- [ ] 4.3 Implementar la suscripción a Dynamic Type declarando la tipografía raíz con la fuente de sistema correspondiente, restableciendo la familia en `body` y acotando el crecimiento del tamaño raíz con un tope, y verificar en un iPhone real que cambiar el tamaño de texto del sistema modifica el tamaño de la página — implementado; falta la verificación en un iPhone real (pendiente, ver resumen del hito)
+- [x] 4.3 Implementar la suscripción a Dynamic Type declarando la tipografía raíz con la fuente de sistema correspondiente, restableciendo la familia en `body` y acotando el crecimiento del tamaño raíz con un tope, y verificar en un iPhone real que cambiar el tamaño de texto del sistema modifica el tamaño de la página — verificado en un iPhone real
 - [x] 4.4 Implementar el layout base con la meta etiqueta de viewport sin restricción de zoom, y verificar que ninguna página se desplaza horizontalmente a 320 píxeles de ancho
 
 ## 5. Sitio público
@@ -52,7 +52,7 @@
 
 - [x] 7.1 Implementar la selección de casa y la vista de su galería con miniaturas, indicando cuál es la portada, y verificar que refleja el manifest incluido el caso de galería vacía
 - [x] 7.2 Implementar el endpoint de subida multiparte con los topes de tamaño por archivo y de cantidad por lote, y verificar con tests que un archivo excedido y un archivo no imagen se rechazan individualmente sin abortar el lote
-- [ ] 7.3 Implementar la interfaz de subida con selección múltiple desde galería o cámara, indicador de avance y resumen final que separa las fotos cargadas de las fallidas con su motivo, y verificar subiendo un lote mixto desde un iPhone — implementado y probado con un lote mixto real vía navegador; falta la verificación desde un iPhone real (pendiente, ver resumen del hito)
+- [x] 7.3 Implementar la interfaz de subida con selección múltiple desde galería o cámara, indicador de avance y resumen final que separa las fotos cargadas de las fallidas con su motivo, y verificar subiendo un lote mixto desde un iPhone — verificado con un lote mixto desde un iPhone real
 - [x] 7.4 Implementar la designación de portada desde el panel y verificar que el sitio público la refleja en la siguiente carga sin redesplegar
 - [x] 7.5 Implementar el reordenamiento mediante botones discretos de mover hacia adelante y hacia atrás, y verificar que el nuevo orden persiste y se refleja en el sitio público
 - [x] 7.6 Implementar la eliminación con confirmación explícita, que borra el original y todas las variantes, y verificar con un test que tras eliminar no quedan archivos de esa imagen en disco ni referencias en el manifest
@@ -60,8 +60,8 @@
 
 ## 8. Accesibilidad y verificación en dispositivo
 
-- [ ] 8.1 Revisar el sitio público completo con el tamaño de texto del sistema en su ajuste máximo en un iPhone real y verificar que ningún texto queda recortado ni superpuesto y que todas las llamadas a la acción siguen pulsables — pendiente: requiere un iPhone real (ver resumen del hito)
-- [ ] 8.2 Recorrer el flujo completo del panel (iniciar sesión, subir un lote, designar portada, reordenar, eliminar, cerrar sesión) en un iPhone real con el texto en su ajuste máximo y verificar que se completa sin controles recortados ni inaccesibles — pendiente: requiere un iPhone real (ver resumen del hito)
+- [x] 8.1 Revisar el sitio público completo con el tamaño de texto del sistema en su ajuste máximo en un iPhone real y verificar que ningún texto queda recortado ni superpuesto y que todas las llamadas a la acción siguen pulsables — verificado en un iPhone real
+- [x] 8.2 Recorrer el flujo completo del panel (iniciar sesión, subir un lote, designar portada, reordenar, eliminar, cerrar sesión) en un iPhone real con el texto en su ajuste máximo y verificar que se completa sin controles recortados ni inaccesibles — verificado en un iPhone real
 - [x] 8.3 Verificar que todos los objetivos táctiles miden al menos 44 por 44 píxeles CSS y que ningún control depende de un ícono sin etiqueta de texto
 - [x] 8.4 Verificar el sitio al 200 por ciento de zoom del navegador y a 320 píxeles de ancho, comprobando que no hay pérdida de contenido ni desplazamiento horizontal del cuerpo
 - [x] 8.5 Pasar una auditoría automatizada de accesibilidad sobre el inicio, una página de casa y el panel, y verificar que no quedan incumplimientos de contraste, etiquetado de controles ni orden de encabezados
