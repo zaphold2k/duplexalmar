@@ -88,6 +88,21 @@ test.describe('subida, reemplazo y publicación', () => {
     expect(ogImage).toContain(`/images/${HOME_HERO_SLUG}/${id}`);
   });
 
+  test('en pantalla grande la foto de inicio ocupa todo el ancho', async ({ page }) => {
+    // La foto la sembró el test anterior (un solo worker, en orden). Más
+    // ancha que la variante mayor de la imagen, la pantalla expone si el
+    // estilo de la página no llega al <img> (quedaba a su ancho intrínseco,
+    // pegada a la izquierda).
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+
+    const hero = page.locator('.hero__image');
+    await expect(hero).toHaveAttribute('src', new RegExp(`/images/${HOME_HERO_SLUG}/`));
+    const box = await hero.boundingBox();
+    expect(box?.x).toBe(0);
+    expect(box?.width).toBe(1440);
+  });
+
   test('subir otra foto reemplaza la vigente y borra los archivos de la anterior', async ({
     page,
   }) => {

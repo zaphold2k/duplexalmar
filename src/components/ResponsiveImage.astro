@@ -30,6 +30,11 @@ const {
   loading = 'lazy',
   fetchpriority = 'auto',
   class: className,
+  // Astro pasa el atributo `data-astro-cid-*` del padre junto con `class`
+  // cuando la página usa estilos scoped; sin reenviarlo al <img>, reglas
+  // como `.hero__image { width: 100% }` no le aplican y la imagen queda a
+  // su ancho intrínseco, pegada a la izquierda en pantallas grandes.
+  ...rest
 } = Astro.props;
 
 const widths = applicableVariantWidths(width);
@@ -57,4 +62,5 @@ const srcset = (widths.length > 0 ? widths : [480])
   fetchpriority={fetchpriority}
   decoding="async"
   class={className}
+  {...rest}
 />

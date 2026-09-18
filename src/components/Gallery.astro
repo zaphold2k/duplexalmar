@@ -129,11 +129,17 @@ const lightboxImages = images.map((image) => {
     justify-content: center;
   }
 
+  /*
+   * Ocupa todo el alto que dejan libre los controles y el epígrafe, a todo
+   * el ancho; `object-fit: contain` encaja la foto adentro sin recortarla
+   * ni deformarla, centrada. Sin `min-height: 0` el ítem flex no se achica
+   * por debajo del alto intrínseco de la foto y desborda la pantalla.
+   */
   .gallery__image {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
     max-width: 100%;
-    max-height: 75vh;
-    width: auto;
-    height: auto;
     object-fit: contain;
   }
 
