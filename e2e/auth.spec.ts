@@ -1,8 +1,9 @@
 import { expect, test } from '@playwright/test';
+import { E2E_ADMIN_PASSWORD, E2E_ADMIN_USERNAME, E2E_BASE_URL } from './env';
 
-// Credenciales de desarrollo (ver .env, no commiteado): admin / prueba-123.
-const VALID_USERNAME = 'admin';
-const VALID_PASSWORD = 'prueba-123';
+// Tienen que coincidir con `.env` (modo local) y `.env.e2e` (modo Docker).
+const VALID_USERNAME = E2E_ADMIN_USERNAME;
+const VALID_PASSWORD = E2E_ADMIN_PASSWORD;
 
 async function login(
   page: import('@playwright/test').Page,
@@ -37,7 +38,7 @@ test.describe('acceso sin sesión', () => {
     // guardia y no la protección CSRF genérica de Astro (que sin Origin
     // responde 403 antes de llegar al middleware).
     const response = await request.post('/api/admin/casa-rosa/upload', {
-      headers: { origin: baseURL ?? 'http://localhost:4321' },
+      headers: { origin: baseURL ?? E2E_BASE_URL },
     });
 
     expect(response.status()).toBe(401);

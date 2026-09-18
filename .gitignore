@@ -27,6 +27,8 @@ pnpm-debug.log*
 
 # directorio de datos local (manifests + imágenes); nunca se commitea
 /data/
+# directorio de datos de la suite e2e (ver e2e/env.ts); lo borra el teardown
+/data-e2e/
 
 # macOS-specific files
 .DS_Store

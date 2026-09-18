@@ -7,6 +7,11 @@ import { defineConfig, devices } from '@playwright/test';
  * navegador, así que no corren en el hook de pre-commit; se ejecutan a mano
  * con `npm run test:e2e` o en CI.
  */
+// Con E2E_BASE_URL definida (p. ej. desde `npm run test:e2e:docker`), la
+// suite corre contra un server que ya está levantado en esa URL y no arranca
+// ninguno propio. Ver e2e/env.ts.
+const externalBaseUrl = process.env.E2E_BASE_URL;
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -19,21 +24,28 @@ export default defineConfig({
   workers: 1,
   reporter: 'list',
   use: {
-    baseURL: 'http://localhost:4321',
+    baseURL: externalBaseUrl ?? 'http://localhost:4321',
     trace: 'on-first-retry',
   },
   globalSetup: './e2e/global-setup.ts',
   globalTeardown: './e2e/global-teardown.ts',
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-  webServer: {
-    // `astro dev` se demoniza solo en este entorno (detecta un agente de IA y
-    // corre en segundo plano), lo que confunde el manejo de procesos de
-    // Playwright. Se usa el server de producción en foreground en su lugar:
-    // más fiel a lo real, y `--env-file` reemplaza la carga de `.env` que en
-    // producción no ocurre sola (ver server/config).
-    command: 'npm run build && node --env-file=.env dist/server/entry.mjs',
-    url: 'http://localhost:4321',
-    reuseExistingServer: !process.env.CI,
-    timeout: 60_000,
-  },
+  // Sin server propio (lista vacía) cuando la suite apunta a uno externo.
+  webServer: externalBaseUrl
+    ? []
+    : {
+        // `astro dev` se demoniza solo en este entorno (detecta un agente de
+        // IA y corre en segundo plano), lo que confunde el manejo de procesos
+        // de Playwright. Se usa el server de producción en foreground en su
+        // lugar: más fiel a lo real, y `--env-file` reemplaza la carga de
+        // `.env` que en producción no ocurre sola (ver server/config).
+        command: 'npm run build && node --env-file=.env dist/server/entry.mjs',
+        url: 'http://localhost:4321',
+        // Directorio de datos exclusivo de la suite (ver e2e/env.ts). Una
+        // variable ya presente en el entorno le gana a la del `--env-file`,
+        // así que el `DATA_DIR=./data` de `.env` no se usa acá.
+        env: { DATA_DIR: './data-e2e' },
+        reuseExistingServer: !process.env.CI,
+        timeout: 60_000,
+      },
 });

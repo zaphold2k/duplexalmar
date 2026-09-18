@@ -1,11 +1,12 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { processUploadBatch } from '../src/server/images/batch';
-
-const BASE_URL = 'http://localhost:4321';
-// Credenciales de desarrollo (ver .env, no commiteado): admin / prueba-123.
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD = 'prueba-123';
+import {
+  E2E_ADMIN_PASSWORD as ADMIN_PASSWORD,
+  E2E_ADMIN_USERNAME as ADMIN_USERNAME,
+  E2E_BASE_URL as BASE_URL,
+  E2E_DATA_DIR,
+} from './env';
 
 async function loginAndGetSessionCookie(): Promise<string> {
   const body = new URLSearchParams({ username: ADMIN_USERNAME, password: ADMIN_PASSWORD });
@@ -55,17 +56,16 @@ async function assertEmptyStateShowsReserveImage(): Promise<void> {
 /**
  * Carga fotos reales en `casa-rosa` antes de los tests de navegador, para
  * poder ejercer la galería y el lightbox (tarea 5.4) contra datos reales en
- * vez de con el manifest vacío. Usa el mismo `DATA_DIR` que `npm run dev`
- * (ver .env); `global-teardown.ts` lo limpia al terminar.
+ * vez de con el manifest vacío. Escribe en `E2E_DATA_DIR` (nunca en el
+ * `./data` de desarrollo); `global-teardown.ts` lo limpia al terminar.
  */
 export default async function globalSetup(): Promise<void> {
   await assertEmptyStateShowsReserveImage();
 
   const fixturePath = path.join(process.cwd(), 'src/server/images/fixtures/sample.heic');
   const buffer = await readFile(fixturePath);
-  const dataDir = path.join(process.cwd(), 'data');
 
-  await processUploadBatch(dataDir, 'casa-rosa', [
+  await processUploadBatch(E2E_DATA_DIR, 'casa-rosa', [
     { clientFileName: 'foto-1.heic', buffer },
     { clientFileName: 'foto-2.heic', buffer },
     { clientFileName: 'foto-3.heic', buffer },

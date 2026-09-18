@@ -1,6 +1,6 @@
-import path from 'node:path';
 import { expect, test } from '@playwright/test';
 import { readManifest, setCover, writeManifest } from '../src/server/houses';
+import { E2E_DATA_DIR } from './env';
 
 // El estado vacío (manifest sin fotos → imagen de reserva, tareas 5.2/5.3) se
 // verifica en global-setup.ts, antes de subir ninguna foto: es el único
@@ -20,21 +20,20 @@ test.describe('metadatos y vista previa social', () => {
   test('cambiar la portada de una casa cambia la imagen declarada en la vista previa', async ({
     page,
   }) => {
-    const dataDir = path.join(process.cwd(), 'data');
-    const before = await readManifest(dataDir, 'casa-rosa');
+    const before = await readManifest(E2E_DATA_DIR, 'casa-rosa');
     const [firstId, secondId] = before.gallery;
     expect(firstId).toBeDefined();
     expect(secondId).toBeDefined();
     if (!firstId || !secondId) return;
 
-    await writeManifest(dataDir, 'casa-rosa', setCover(before, firstId));
+    await writeManifest(E2E_DATA_DIR, 'casa-rosa', setCover(before, firstId));
     await page.goto('/casa-rosa');
     const ogImageWithFirstCover = await page
       .locator('meta[property="og:image"]')
       .getAttribute('content');
     expect(ogImageWithFirstCover).toContain(firstId);
 
-    await writeManifest(dataDir, 'casa-rosa', setCover(before, secondId));
+    await writeManifest(E2E_DATA_DIR, 'casa-rosa', setCover(before, secondId));
     await page.goto('/casa-rosa');
     const ogImageWithSecondCover = await page
       .locator('meta[property="og:image"]')

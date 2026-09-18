@@ -3,10 +3,11 @@ import path from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
 import { HOME_HERO_SLUG } from '../src/server/home-hero';
 import { readManifest } from '../src/server/houses';
+import { E2E_ADMIN_PASSWORD, E2E_ADMIN_USERNAME, E2E_BASE_URL, E2E_DATA_DIR } from './env';
 
-const VALID_USERNAME = 'admin';
-const VALID_PASSWORD = 'prueba-123';
-const DATA_DIR = path.join(process.cwd(), 'data');
+const VALID_USERNAME = E2E_ADMIN_USERNAME;
+const VALID_PASSWORD = E2E_ADMIN_PASSWORD;
+const DATA_DIR = E2E_DATA_DIR;
 const SAMPLE_HEIC = path.join(process.cwd(), 'src/server/images/fixtures/sample.heic');
 
 async function login(page: Page): Promise<void> {
@@ -48,7 +49,7 @@ test.describe('acceso sin sesión', () => {
     request,
     baseURL,
   }) => {
-    const origin = baseURL ?? 'http://localhost:4321';
+    const origin = baseURL ?? E2E_BASE_URL;
 
     const upload = await request.post('/api/admin/inicio/upload', { headers: { origin } });
     const remove = await request.post('/api/admin/inicio/delete', { headers: { origin } });
@@ -166,7 +167,7 @@ test.describe('eliminación', () => {
     await login(page);
 
     const response = await page.request.post('/api/admin/inicio/delete', {
-      headers: { origin: baseURL ?? 'http://localhost:4321' },
+      headers: { origin: baseURL ?? E2E_BASE_URL },
     });
 
     expect(response.ok()).toBe(true);

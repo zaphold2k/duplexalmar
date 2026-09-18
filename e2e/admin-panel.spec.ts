@@ -3,9 +3,10 @@ import path from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
 import { readManifest } from '../src/server/houses';
 import { processUploadBatch } from '../src/server/images';
+import { E2E_ADMIN_PASSWORD, E2E_ADMIN_USERNAME, E2E_DATA_DIR } from './env';
 
-const VALID_USERNAME = 'admin';
-const VALID_PASSWORD = 'prueba-123';
+const VALID_USERNAME = E2E_ADMIN_USERNAME;
+const VALID_PASSWORD = E2E_ADMIN_PASSWORD;
 
 async function login(page: Page): Promise<void> {
   await page.goto('/admin/login');
@@ -22,9 +23,8 @@ async function login(page: Page): Promise<void> {
 let seededImageIds: string[] = [];
 
 test.beforeAll(async () => {
-  const dataDir = path.join(process.cwd(), 'data');
   const buffer = await readFile(path.join(process.cwd(), 'src/server/images/fixtures/sample.heic'));
-  const results = await processUploadBatch(dataDir, 'casa-verde', [
+  const results = await processUploadBatch(E2E_DATA_DIR, 'casa-verde', [
     { clientFileName: 'verde-1.heic', buffer },
     { clientFileName: 'verde-2.heic', buffer },
     { clientFileName: 'verde-3.heic', buffer },
@@ -100,8 +100,7 @@ test.describe('reordenamiento', () => {
     await login(page);
     await page.goto('/admin/casa-verde');
 
-    const dataDir = path.join(process.cwd(), 'data');
-    const before = await readManifest(dataDir, 'casa-verde');
+    const before = await readManifest(E2E_DATA_DIR, 'casa-verde');
     const secondId = before.gallery[1];
     expect(secondId).toBeDefined();
     if (!secondId) return;
@@ -112,7 +111,7 @@ test.describe('reordenamiento', () => {
       thumb.getByRole('button', { name: 'Mover adelante' }).click(),
     ]);
 
-    const after = await readManifest(dataDir, 'casa-verde');
+    const after = await readManifest(E2E_DATA_DIR, 'casa-verde');
     expect(after.gallery[0]).toBe(secondId);
     expect(after.gallery[1]).toBe(before.gallery[0]);
 
@@ -196,13 +195,12 @@ test.describe('eliminación', () => {
 
     await expect(page.locator(`.thumb[data-image-id="${targetId}"]`)).toHaveCount(0);
 
-    const dataDir = path.join(process.cwd(), 'data');
-    const manifest = await readManifest(dataDir, 'casa-verde');
+    const manifest = await readManifest(E2E_DATA_DIR, 'casa-verde');
     expect(manifest.gallery).not.toContain(targetId);
     expect(manifest.images[targetId]).toBeUndefined();
 
     const { readdir } = await import('node:fs/promises');
-    const files = await readdir(path.join(dataDir, 'images', 'casa-verde'));
+    const files = await readdir(path.join(E2E_DATA_DIR, 'images', 'casa-verde'));
     expect(files.some((name) => name.startsWith(targetId))).toBe(false);
   });
 });

@@ -1,6 +1,6 @@
-import path from 'node:path';
 import { expect, test } from '@playwright/test';
 import { readManifest } from '../src/server/houses';
+import { E2E_DATA_DIR } from './env';
 
 test.describe('encabezados de caché', () => {
   test('el HTML no lleva caché compartida de larga duración', async ({ request }) => {
@@ -12,8 +12,7 @@ test.describe('encabezados de caché', () => {
   test('las imágenes bajo /images/ llevan caché pública inmutable de un año', async ({
     request,
   }) => {
-    const dataDir = path.join(process.cwd(), 'data');
-    const manifest = await readManifest(dataDir, 'casa-rosa');
+    const manifest = await readManifest(E2E_DATA_DIR, 'casa-rosa');
     const firstId = manifest.gallery[0];
     expect(firstId).toBeDefined();
     if (!firstId) return;

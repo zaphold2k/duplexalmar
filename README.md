@@ -25,9 +25,17 @@ Comandos:
 | `npm run build`                         | Build de producción a `dist/`                                                                                        |
 | `npm run check`                         | Typecheck + lint + formato + tests unitarios (lo que corre el hook de pre-commit)                                    |
 | `npm run test:e2e`                      | Tests de navegador (Playwright) contra el server real; separados de `check` porque arrancan un server y un navegador |
+| `npm run test:e2e:docker`               | Los mismos tests, pero contra la imagen de Docker levantada con `docker-compose.e2e.yml` (ver abajo)                 |
 | `npm run hash-password -- "contraseña"` | Genera el hash para `ADMIN_PASSWORD_HASH`                                                                            |
 | `npm run maintenance`                   | Lista archivos huérfanos en `/data/images/` y el espacio que ocupan, sin borrar nada                                 |
 | `npm run maintenance -- --delete`       | Borra los huérfanos listados                                                                                         |
+
+### Tests e2e y el directorio de datos
+
+La suite e2e arranca siempre con las casas vacías, siembra fotos de prueba y **borra su directorio de datos al terminar**. Para que eso nunca alcance a lo que se cargó a mano desde el panel, usa un directorio propio, `./data-e2e` (ver `e2e/env.ts`), y no el `./data` de desarrollo. Hay dos formas de correrla:
+
+- `npm run test:e2e`: Playwright compila y levanta el server local en `4321` con `DATA_DIR=./data-e2e`, usando las credenciales de `.env` (tienen que ser `admin` / `prueba-123`, las que esperan los tests).
+- `npm run test:e2e:docker`: levanta la imagen de producción con `docker-compose.e2e.yml` en `127.0.0.1:4322`, corre los tests contra ella y la baja al final, pase lo que pase. Es un compose aparte del de despliegue: se pasa con `-f`, no carga `docker-compose.override.yml` (el que monta `./data`) y usa `.env.e2e`, que sí está commiteado porque sólo tiene credenciales de prueba. Los argumentos extra van a Playwright: `npm run test:e2e:docker -- e2e/whatsapp.spec.ts`.
 
 ## Variables de entorno
 

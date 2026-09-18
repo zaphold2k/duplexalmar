@@ -1,6 +1,10 @@
 import { rm } from 'node:fs/promises';
-import path from 'node:path';
+import { E2E_DATA_DIR } from './env';
 
+/**
+ * Borra sólo el directorio de datos de la suite. El `./data` de desarrollo
+ * no se toca: lo que se cargó desde el panel a mano sobrevive a las e2e.
+ */
 export default async function globalTeardown(): Promise<void> {
-  await rm(path.join(process.cwd(), 'data'), { recursive: true, force: true });
+  await rm(E2E_DATA_DIR, { recursive: true, force: true });
 }
