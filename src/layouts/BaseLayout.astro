@@ -34,6 +34,7 @@ const ogImageUrl = new URL(ogImagePath, Astro.url.origin).toString();
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="icon" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>{title}</title>
 
     <meta property="og:type" content="website" />
