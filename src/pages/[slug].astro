@@ -133,16 +133,13 @@ const ogImagePath =
         </ul>
       </section>
 
-      <section class="house-section house-cta">
-        <WhatsAppButton message={whatsAppMessageForHouse(pageData.house.name)} />
-      </section>
+      {/*
+        Un solo botón, hijo directo de <main>: con position: sticky flota al
+        pie de la pantalla mientras se recorre la página y, al llegar al
+        final, se asienta en su lugar sin tapar el contenido.
+      */}
+      <WhatsAppButton message={whatsAppMessageForHouse(pageData.house.name)} variant="sticky" />
     </main>
-
-    <WhatsAppButton
-      message={whatsAppMessageForHouse(pageData.house.name)}
-      variant="sticky"
-      label="WhatsApp"
-    />
   </BaseLayout>
 )}
 
@@ -173,9 +170,5 @@ const ogImagePath =
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
-  }
-
-  .house-cta {
-    align-items: flex-start;
   }
 </style>

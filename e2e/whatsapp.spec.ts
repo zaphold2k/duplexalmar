@@ -31,4 +31,26 @@ test.describe('acceso a WhatsApp', () => {
     await page.mouse.wheel(0, 2000);
     await expect(sticky).toBeInViewport();
   });
+
+  test('en la página de una casa, al llegar al final el botón se asienta sin tapar el contenido', async ({
+    page,
+  }) => {
+    await page.goto('/casa-rosa');
+
+    const sticky = page.locator('.whatsapp-button--sticky');
+    await expect(sticky).toHaveCount(1);
+
+    await page.evaluate(() => {
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+
+    const lastItem = page.locator('main li').last();
+    const [itemBox, stickyBox] = await Promise.all([lastItem.boundingBox(), sticky.boundingBox()]);
+
+    await expect(sticky).toBeInViewport();
+    if (itemBox === null || stickyBox === null) {
+      throw new Error('No se pudo medir el último ítem o el botón de WhatsApp.');
+    }
+    expect(itemBox.y + itemBox.height).toBeLessThanOrEqual(stickyBox.y);
+  });
 });
