@@ -58,6 +58,9 @@ const ogImagePath =
   >
     <main>
       <header class="house-hero">
+        <a href="/" class="house-hero__back">
+          <span aria-hidden="true">←</span> Volver al inicio
+        </a>
         {pageData.coverId !== null && pageData.coverImage ? (
           <ResponsiveImage
             houseSlug={pageData.house.slug}
@@ -159,6 +162,29 @@ const ogImagePath =
     height: 65vh;
     height: 65svh;
     object-fit: cover;
+  }
+
+  /*
+   * Enlace al inicio, no `history.back()`: la página de una casa suele
+   * abrirse desde un enlace compartido por WhatsApp, sin historial previo.
+   * Fondo oscuro translúcido para que el texto blanco contraste sobre
+   * cualquier foto.
+   */
+  .house-hero__back {
+    position: absolute;
+    inset-block-start: var(--space-3);
+    inset-inline-start: var(--space-3);
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: var(--touch-target-min);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    background: rgb(0 0 0 / 55%);
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
   }
 
   .house-hero__caption {
