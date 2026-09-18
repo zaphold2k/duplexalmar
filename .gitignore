@@ -35,3 +35,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# notas internas de trabajo; no se commitean
+/TODO.md
