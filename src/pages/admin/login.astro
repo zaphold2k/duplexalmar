@@ -37,7 +37,12 @@ if (Astro.request.method === 'POST') {
     const cookieValue = signValue(result.sessionId, config.session.secret);
     Astro.cookies.set(SESSION_COOKIE_NAME, cookieValue, {
       httpOnly: true,
-      secure: true,
+      // `true` fijo descartaba la cookie en cualquier navegador salvo por
+      // "localhost" exacto, porque hoy no hay TLS (ver nginx.conf: la
+      // elección de proxy/certificados queda para el change de despliegue).
+      // `X-Forwarded-Proto` ya lo manda ese nginx; cuando se agregue TLS ahí,
+      // esto empieza a dar `true` solo, sin tocar este archivo.
+      secure: Astro.request.headers.get('x-forwarded-proto') === 'https',
       sameSite: 'lax',
       path: '/',
       expires: new Date(result.expiresAt),

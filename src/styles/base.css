@@ -10,6 +10,11 @@
  */
 html {
   font: -apple-system-body;
+  /* Sin esto, los controles nativos (inputs, checkboxes) siguen el tema del
+     navegador en vez del `prefers-color-scheme` que ya maneja tokens.css,
+     y el input queda con fondo claro de UA aunque el texto herede el color
+     claro del modo oscuro (texto blanco sobre fondo blanco). */
+  color-scheme: light dark;
 }
 
 body {
@@ -60,6 +65,7 @@ textarea,
 select {
   font: inherit;
   color: inherit;
+  background-color: var(--color-surface-raised);
 }
 
 a {

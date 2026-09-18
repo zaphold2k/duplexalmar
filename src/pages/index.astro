@@ -5,7 +5,9 @@ import { HOUSE_SLUGS, getHouseContent } from '../content/houses';
 import { whatsAppGenericMessage } from '../lib/whatsapp';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { config } from '../server/config';
+import { getHomeHeroImage, HOME_HERO_SLUG } from '../server/home-hero';
 import { getEffectiveCoverId, readManifest } from '../server/houses';
+import { applicableVariantWidths, imageVariantUrl } from '../server/images';
 
 const houseCards = await Promise.all(
   HOUSE_SLUGS.map(async (slug) => {
@@ -16,20 +18,45 @@ const houseCards = await Promise.all(
     return { house, coverId, coverImage };
   }),
 );
+
+const heroImage = await getHomeHeroImage(config.dataDir);
+// Sin foto propia, BaseLayout cae a su default estático (la imagen de reserva).
+const ogImagePath = heroImage
+  ? imageVariantUrl(
+      HOME_HERO_SLUG,
+      heroImage.id,
+      applicableVariantWidths(heroImage.width).at(-1) ?? 480,
+    )
+  : undefined;
 ---
 
 <BaseLayout
   title="Las Petras — Casas de Mar"
   description="Dos casas de playa en El Marquesado, frente al mar, en la zona sur de Mar del Plata. Alquiler por temporada."
+  ogImagePath={ogImagePath}
 >
   <header class="hero">
-    <img
-      src="/images/reserve-cover.jpg"
-      alt="Las Petras — Casas de Mar"
-      class="hero__image"
-      width="1200"
-      height="630"
-    />
+    {heroImage ? (
+      <ResponsiveImage
+        houseSlug={HOME_HERO_SLUG}
+        imageId={heroImage.id}
+        width={heroImage.width}
+        height={heroImage.height}
+        alt="Las Petras — Casas de Mar"
+        sizes="100vw"
+        loading="eager"
+        fetchpriority="high"
+        class="hero__image"
+      />
+    ) : (
+      <img
+        src="/images/reserve-cover.jpg"
+        alt="Las Petras — Casas de Mar"
+        class="hero__image"
+        width="1200"
+        height="630"
+      />
+    )}
     <div class="hero__caption">
       <h1>Las Petras — Casas de Mar</h1>
       <p>

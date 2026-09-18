@@ -58,7 +58,10 @@ test.describe('inicio de sesión correcto', () => {
     await expect(page.getByRole('heading', { name: 'Panel' })).toBeVisible();
   });
 
-  test('la cookie de sesión es HttpOnly, Secure y SameSite=Lax', async ({ page, context }) => {
+  test('la cookie de sesión es HttpOnly y SameSite=Lax; Secure sólo detrás de TLS', async ({
+    page,
+    context,
+  }) => {
     await login(page, VALID_USERNAME, VALID_PASSWORD);
 
     const cookies = await context.cookies();
@@ -66,7 +69,11 @@ test.describe('inicio de sesión correcto', () => {
 
     expect(sessionCookie).toBeDefined();
     expect(sessionCookie?.httpOnly).toBe(true);
-    expect(sessionCookie?.secure).toBe(true);
+    // `Secure` sigue a `X-Forwarded-Proto` (ver login.astro): acá no hay
+    // proxy TLS delante, así que no se marca; con `true` fijo, un navegador
+    // real la descartaba sobre HTTP plano en cualquier host que no fuera
+    // exactamente "localhost".
+    expect(sessionCookie?.secure).toBe(false);
     expect(sessionCookie?.sameSite).toBe('Lax');
   });
 });

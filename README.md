@@ -15,7 +15,7 @@ cp .env.example .env
 npm run dev
 ```
 
-El sitio queda en `http://localhost:4321`. El panel está en `/admin`.
+El sitio queda en `http://localhost:4321`. El panel está en `/admin`: desde ahí se entra a las fotos de cada casa y se administra la foto principal de inicio (la que se ve a pantalla completa al abrir el sitio; mientras no haya una cargada, se muestra `public/images/reserve-cover.jpg`).
 
 Comandos:
 
@@ -74,7 +74,7 @@ docker run --rm -v duplexalmar_data:/data -v "$(pwd)":/backup alpine \
   tar czf /backup/duplexalmar-data-$(date +%Y%m%d).tar.gz -C /data .
 ```
 
-**Restaurar:** descomprimir esa copia sobre `/data` en una instalación limpia (mismo volumen vacío o directorio nuevo) y levantar la app; no hace falta ningún paso adicional, el sitio vuelve a mostrar exactamente las mismas fotos, portadas y orden que tenía al momento de la copia.
+**Restaurar:** descomprimir esa copia sobre `/data` en una instalación limpia (mismo volumen vacío o directorio nuevo) y levantar la app; no hace falta ningún paso adicional, el sitio vuelve a mostrar exactamente las mismas fotos, portadas, orden y foto principal de inicio que tenía al momento de la copia.
 
 ```bash
 docker run --rm -v duplexalmar_data:/data -v "$(pwd)":/backup alpine \

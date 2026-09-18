@@ -1,6 +1,7 @@
 import { readdir, rm, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { HOUSE_SLUGS } from '../../content/houses';
+import { HOME_HERO_SLUG } from '../home-hero';
 import { readManifest } from '../houses';
 
 export interface OrphanFile {
@@ -27,13 +28,14 @@ function extractIdFromFileName(fileName: string): string {
 /**
  * Lista los archivos bajo `/data/images/<casa>/` que ningún manifest
  * referencia (ver design.md, decisión 5: "el manifest es la fuente de
- * verdad"). No borra nada; sólo reporta.
+ * verdad"). Incluye el directorio de la foto principal de inicio, que reusa
+ * el mismo manifest bajo un slug reservado. No borra nada; sólo reporta.
  */
 export async function findOrphans(dataDir: string): Promise<OrphanReport> {
   const orphans: OrphanFile[] = [];
   let totalSizeBytes = 0;
 
-  for (const house of HOUSE_SLUGS) {
+  for (const house of [...HOUSE_SLUGS, HOME_HERO_SLUG]) {
     const manifest = await readManifest(dataDir, house);
     const knownIds = new Set(Object.keys(manifest.images));
     const dir = path.join(dataDir, 'images', house);

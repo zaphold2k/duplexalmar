@@ -1,9 +1,13 @@
 ---
-import type { HouseSlug } from '../content/houses';
 import { applicableVariantWidths, imageVariantUrl } from '../server/images';
 
 export interface Props {
-  houseSlug: HouseSlug;
+  /**
+   * Directorio de la imagen bajo `/images/`: el slug de una casa, o el slug
+   * reservado de la foto principal de inicio (ver server/home-hero). Por eso
+   * es `string` y no `HouseSlug`.
+   */
+  houseSlug: string;
   imageId: string;
   /** Dimensiones originales (ya orientadas) de la imagen, tal como quedaron en el manifest. */
   width: number;

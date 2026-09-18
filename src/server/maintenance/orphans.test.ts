@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import sharp from 'sharp';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { HOME_HERO_SLUG } from '../home-hero';
 import { processUploadBatch } from '../images';
 import { deleteOrphans, findOrphans } from './orphans';
 
@@ -17,6 +18,20 @@ afterEach(async () => {
 });
 
 describe('findOrphans', () => {
+  it('también barre el directorio de la foto principal de inicio', async () => {
+    const dir = path.join(dataDir, 'images', HOME_HERO_SLUG);
+    await mkdir(dir, { recursive: true });
+    await writeFile(path.join(dir, 'huerfano-480.webp'), Buffer.from('huérfano de inicio'));
+
+    const report = await findOrphans(dataDir);
+
+    expect(report.orphans).toHaveLength(1);
+    expect(report.orphans[0]).toMatchObject({
+      house: HOME_HERO_SLUG,
+      fileName: 'huerfano-480.webp',
+    });
+  });
+
   it('no reporta nada cuando todos los archivos están referenciados en el manifest', async () => {
     const jpeg = await sharp({
       create: { width: 600, height: 400, channels: 3, background: { r: 200, g: 0, b: 0 } },
