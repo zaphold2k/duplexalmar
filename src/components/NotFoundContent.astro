@@ -1,0 +1,35 @@
+---
+export interface Props {
+  message?: string;
+}
+
+const { message = 'La página que buscás no existe.' } = Astro.props;
+---
+
+<main class="not-found">
+  <h1>No encontramos esta página</h1>
+  <p>{message}</p>
+  <a href="/" class="not-found__link">
+    Volver al inicio
+  </a>
+</main>
+
+<style>
+  .not-found {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    min-height: 60vh;
+    padding: var(--space-5);
+    text-align: center;
+  }
+
+  .not-found__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-target-min);
+    font-weight: 600;
+  }
+</style>

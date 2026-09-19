@@ -1,0 +1,81 @@
+/**
+ * Tokens de diseño: paleta natural de costa con acento por casa, escala
+ * tipográfica y espaciado, todo en unidades relativas (ver CODESTYLE §4 y
+ * design.md, decisión 8: ninguna medida tipográfica en píxeles absolutos).
+ */
+:root {
+  /* Paleta: arena, cielo/mar y tinta, con acentos rosa/verde por casa */
+  --color-sand-50: #faf6f0;
+  --color-sand-100: #f2e9dc;
+  --color-sand-300: #ddc9a3;
+  --color-sea-600: #2b6777;
+  --color-sea-800: #1a4552;
+  --color-ink-900: #24211d;
+  --color-ink-700: #4a453d;
+
+  --color-surface: var(--color-sand-50);
+  --color-surface-raised: #ffffff;
+  --color-text: var(--color-ink-900);
+  --color-text-muted: var(--color-ink-700);
+  --color-border: var(--color-sand-300);
+
+  /* Contraste ≥ 4.5:1 con texto blanco (WCAG AA); el tono original (#c1666b)
+     daba 3.9:1, detectado por la auditoría de accesibilidad (tarea 8.5). */
+  --color-accent-rosa: #a8535a;
+  --color-accent-verde: #4f7a5a;
+  /* Acento por defecto (páginas sin casa asociada, p. ej. inicio/ubicación) */
+  --color-accent: var(--color-sea-600);
+  --color-accent-contrast: #ffffff;
+
+  /*
+   * Escala tipográfica (razón ~1.2) en `rem`: relativa al tamaño de fuente del
+   * elemento raíz, que a su vez sigue el Dynamic Type del sistema operativo
+   * (ver base.css). Cambiar el tamaño raíz mueve toda la escala junta.
+   */
+  --step--1: 0.833rem;
+  --step-0: 1rem;
+  --step-1: 1.2rem;
+  --step-2: 1.44rem;
+  --step-3: 1.728rem;
+  --step-4: 2.074rem;
+  --step-5: 2.488rem;
+
+  /* Espaciado en `rem`, también solidario con el tamaño de fuente raíz */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2rem;
+  --space-6: 3rem;
+  --space-7: 4.5rem;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+
+  /*
+   * Único valor en píxeles físicos del sistema: el objetivo táctil mínimo es
+   * una medida de accesibilidad del dispositivo, no tipográfica (ver spec
+   * sitio-publico y admin-imagenes, "44 por 44 píxeles CSS").
+   */
+  --touch-target-min: 44px;
+
+  --max-content-width: 72rem;
+}
+
+[data-house='casa-rosa'] {
+  --color-accent: var(--color-accent-rosa);
+}
+
+[data-house='casa-verde'] {
+  --color-accent: var(--color-accent-verde);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-surface: var(--color-ink-900);
+    --color-surface-raised: #302c26;
+    --color-text: var(--color-sand-50);
+    --color-text-muted: var(--color-sand-300);
+    --color-border: var(--color-ink-700);
+  }
+}

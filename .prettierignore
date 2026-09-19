@@ -1,0 +1,9 @@
+dist/
+.astro/
+node_modules/
+package-lock.json
+
+# Artefactos de planificación y de agentes: no son código de la app.
+openspec/
+.claude/
+CODESTYLE.md

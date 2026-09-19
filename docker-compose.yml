@@ -1,0 +1,45 @@
+services:
+  app:
+    build: .
+    # `.env.docker`, no `.env`: Compose reescanea el contenido de un env_file
+    # buscando `$VAR` para interpolar, lo que corrompe un hash de contraseña
+    # (siempre lleva `$` como separador). `.env.docker` guarda cada `$` como
+    # `$$`; `.env` (el que usa `npm run dev`) no necesita ese escape porque
+    # Node y Vite no reinterpretan el archivo. Ver .env.docker.example.
+    env_file:
+      - .env.docker
+    environment:
+      DATA_DIR: /data
+    volumes:
+      - data:/data
+    # Límite de memoria explícito (ver design.md, "Riesgos"): una subida
+    # desmedida falla de forma contenida en vez de tumbar el servicio.
+    mem_limit: 512m
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://localhost:4321/').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  proxy:
+    image: nginx:1.27-alpine
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - '8020:80'
+    volumes:
+      - ./proxy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - data:/data:ro
+    restart: unless-stopped
+
+volumes:
+  data:

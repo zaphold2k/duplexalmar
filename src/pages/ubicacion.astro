@@ -1,0 +1,21 @@
+---
+import LocationSection from '../components/LocationSection.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Ubicación — Las Petras — Casas de Mar"
+  description="Las Petras están en El Marquesado, sobre la costa sur de Mar del Plata, a metros de la playa."
+>
+  <main class="page">
+    <LocationSection headingLevel="h1" />
+  </main>
+</BaseLayout>
+
+<style>
+  .page {
+    max-width: var(--max-content-width);
+    margin-inline: auto;
+    padding: var(--space-4);
+  }
+</style>

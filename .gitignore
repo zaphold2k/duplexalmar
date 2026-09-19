@@ -1,0 +1,40 @@
+# build output
+dist/
+# generated types
+.astro/
+
+# salida de Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+# fixtures generados en tiempo de test (ver e2e/admin-panel.spec.ts)
+/e2e/fixtures/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+
+# environment variables
+.env
+.env.production
+.env.docker
+
+# directorio de datos local (manifests + imágenes); nunca se commitea
+/data/
+# directorio de datos de la suite e2e (ver e2e/env.ts); lo borra el teardown
+/data-e2e/
+
+# macOS-specific files
+.DS_Store
+
+# jetbrains setting folder
+.idea/
+
+# notas internas de trabajo; no se commitean
+/TODO.md

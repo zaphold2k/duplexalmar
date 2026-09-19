@@ -1,0 +1,218 @@
+---
+import ResponsiveImage from '../components/ResponsiveImage.astro';
+import WhatsAppButton from '../components/WhatsAppButton.astro';
+import { HOUSE_SLUGS, getHouseContent } from '../content/houses';
+import { whatsAppGenericMessage } from '../lib/whatsapp';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { config } from '../server/config';
+import { getHomeHeroImage, HOME_HERO_SLUG } from '../server/home-hero';
+import { getEffectiveCoverId, readManifest } from '../server/houses';
+import { applicableVariantWidths, imageVariantUrl } from '../server/images';
+
+const houseCards = await Promise.all(
+  HOUSE_SLUGS.map(async (slug) => {
+    const house = getHouseContent(slug);
+    const manifest = await readManifest(config.dataDir, slug);
+    const coverId = getEffectiveCoverId(manifest);
+    const coverImage = coverId !== null ? manifest.images[coverId] : undefined;
+    return { house, coverId, coverImage };
+  }),
+);
+
+const heroImage = await getHomeHeroImage(config.dataDir);
+// Sin foto propia, BaseLayout cae a su default estático (la imagen de reserva).
+const ogImagePath = heroImage
+  ? imageVariantUrl(
+      HOME_HERO_SLUG,
+      heroImage.id,
+      applicableVariantWidths(heroImage.width).at(-1) ?? 480,
+    )
+  : undefined;
+---
+
+<BaseLayout
+  title="Las Petras — Casas de Mar"
+  description="Dos casas de playa en El Marquesado, frente al mar, en la zona sur de Mar del Plata. Alquiler por temporada."
+  ogImagePath={ogImagePath}
+>
+  <header class="hero">
+    {heroImage ? (
+      <ResponsiveImage
+        houseSlug={HOME_HERO_SLUG}
+        imageId={heroImage.id}
+        width={heroImage.width}
+        height={heroImage.height}
+        alt="Las Petras — Casas de Mar"
+        sizes="100vw"
+        loading="eager"
+        fetchpriority="high"
+        class="hero__image"
+      />
+    ) : (
+      <img
+        src="/images/reserve-cover.jpg"
+        alt="Las Petras — Casas de Mar"
+        class="hero__image"
+        width="1200"
+        height="630"
+      />
+    )}
+    <div class="hero__caption">
+      <h1>Las Petras — Casas de Mar</h1>
+      <p>
+        Dos casas de playa frente al mar, en El Marquesado, con carácter propio y mucho aire libre.
+      </p>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <p>
+        Las Petras son dos casas de playa vecinas, en el mismo predio abierto de El Marquesado,
+        sobre la costa sur de Mar del Plata: la Casa Rosa, al frente, y la Casa Verde, atrás. Las
+        dos miran al mar desde su balcón, tienen galería con pérgola y parrilla propia, y conservan
+        la decoración náutica y playera que fueron juntando con los años.
+      </p>
+    </section>
+
+    <section class="section houses" aria-labelledby="casas-titulo">
+      <h2 id="casas-titulo">Las casas</h2>
+      <ul class="houses__grid">
+        {houseCards.map(({ house, coverId, coverImage }) => (
+          <li class="house-card">
+            <a href={`/${house.slug}`} class="house-card__link">
+              {coverId !== null && coverImage ? (
+                <ResponsiveImage
+                  houseSlug={house.slug}
+                  imageId={coverId}
+                  width={coverImage.width}
+                  height={coverImage.height}
+                  alt={coverImage.alt || `Portada de ${house.name}`}
+                  sizes="(min-width: 640px) 50vw, 100vw"
+                  class="house-card__image"
+                />
+              ) : (
+                <img
+                  src="/images/reserve-cover.jpg"
+                  alt={house.name}
+                  width="1200"
+                  height="630"
+                  class="house-card__image"
+                />
+              )}
+              <span class="house-card__body">
+                <span class="house-card__name">{house.name}</span>
+                <span class="house-card__tagline">{house.tagline}</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="section" aria-labelledby="ubicacion-titulo">
+      <h2 id="ubicacion-titulo">Ubicación</h2>
+      <p>
+        Las dos casas están en El Marquesado, a metros de la playa, cerca de Miramar y Chapadmalal.
+      </p>
+      <a href="/ubicacion" class="section__link">
+        Ver el mapa y cómo llegar
+      </a>
+    </section>
+
+    <section class="section" aria-labelledby="contacto-titulo">
+      <h2 id="contacto-titulo">Contacto</h2>
+      <p>Las consultas por disponibilidad y precios son por WhatsApp.</p>
+      <WhatsAppButton message={whatsAppGenericMessage()} />
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .hero {
+    position: relative;
+  }
+
+  /*
+   * 65% del alto de la ventana, en cualquier pantalla: así siempre asoma
+   * el contenido que sigue debajo de la foto. `svh` toma el alto con la
+   * barra del navegador del celular visible (el caso más chico), para que
+   * el corte no cambie al desplazarse; `vh` queda de reserva.
+   */
+  .hero__image {
+    width: 100%;
+    height: 65vh;
+    height: 65svh;
+    object-fit: cover;
+  }
+
+  .hero__caption {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: rgb(0 0 0 / 35%);
+    color: white;
+  }
+
+  .section {
+    max-width: var(--max-content-width);
+    margin-inline: auto;
+    padding: var(--space-5) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .section__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-target-min);
+    font-weight: 600;
+  }
+
+  .houses__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--space-4);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .house-card__link {
+    display: block;
+    position: relative;
+    text-decoration: none;
+    color: inherit;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .house-card__image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  .house-card__body {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    padding: var(--space-3);
+    background: linear-gradient(to top, rgb(0 0 0 / 60%), transparent);
+    color: white;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .house-card__name {
+    font-size: var(--step-2);
+    font-weight: 700;
+  }
+</style>
