@@ -6,6 +6,8 @@ dist/
 # cobertura y reporte JUnit del CI
 /coverage/
 /.ci/
+# checkout del componente ci-workflows dentro del working directory
+/.ci-workflows/
 
 # salida de Playwright
 /test-results/
