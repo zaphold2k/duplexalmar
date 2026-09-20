@@ -1,7 +1,8 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
 import { processUploadBatch } from '../src/server/images';
+import { EMPTY_MANIFEST, writeManifest } from '../src/server/houses';
 import { E2E_ADMIN_PASSWORD, E2E_ADMIN_USERNAME, E2E_DATA_DIR } from './env';
 
 const VALID_USERNAME = E2E_ADMIN_USERNAME;
@@ -22,6 +23,15 @@ async function login(page: Page): Promise<void> {
 let seededImageIds: string[] = [];
 
 test.beforeAll(async () => {
+  // Idempotente ante reintentos: en modo serie, si un test más abajo en el
+  // archivo falla, Playwright reintenta corriendo TODO el archivo de nuevo
+  // desde el principio, `beforeAll` incluido — sin este reset, cada
+  // reintento vuelve a sembrar 4 fotos más sobre las que ya había (4 → 8 →
+  // 12 en una corrida real), y eso vuelve flaky a cualquier otro test que
+  // cuente fotos de casa-verde (ver memoria "bug-hang-subida-heic-en-ci").
+  await writeManifest(E2E_DATA_DIR, 'casa-verde', EMPTY_MANIFEST);
+  await rm(path.join(E2E_DATA_DIR, 'images', 'casa-verde'), { recursive: true, force: true });
+
   const buffer = await readFile(path.join(process.cwd(), 'src/server/images/fixtures/sample.heic'));
   const results = await processUploadBatch(E2E_DATA_DIR, 'casa-verde', [
     { clientFileName: 'verde-1.heic', buffer },
@@ -118,10 +128,19 @@ test.describe('subida', () => {
     await page.setInputFiles('input[type="file"]', [validPath, invalidPath]);
     await page.getByRole('button', { name: 'Subir' }).click();
 
+    // El resumen se arma de una sola vez cuando responde el XHR (ver
+    // admin/[house].astro): no hay estado intermedio entre el `toHaveCount`
+    // y los `filter` de abajo, pero decodificar el HEIC real bajo CPU
+    // compartida en CI puede tardar más que el default de Playwright
+    // (mismo motivo que el timeout de 120s en playwright.config.ts).
     const summary = page.locator('[data-upload-summary] li');
-    await expect(summary).toHaveCount(2, { timeout: 15_000 });
-    await expect(summary.filter({ hasText: 'sample.heic: cargada' })).toHaveCount(1);
-    await expect(summary.filter({ hasText: 'not-an-image.txt' })).toHaveCount(1);
+    await expect(summary).toHaveCount(2, { timeout: 30_000 });
+    await expect(summary.filter({ hasText: 'sample.heic: cargada' })).toHaveCount(1, {
+      timeout: 30_000,
+    });
+    await expect(summary.filter({ hasText: 'not-an-image.txt' })).toHaveCount(1, {
+      timeout: 30_000,
+    });
     await expect(summary.filter({ hasText: 'not-an-image.txt' })).toContainText(
       'no es una imagen válida',
     );
