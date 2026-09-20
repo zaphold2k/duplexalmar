@@ -135,6 +135,8 @@ test.describe('subida', () => {
     // (mismo motivo que el timeout de 120s en playwright.config.ts).
     const summary = page.locator('[data-upload-summary] li');
     await expect(summary).toHaveCount(2, { timeout: 30_000 });
+    // eslint-disable-next-line no-console -- diagnóstico temporal, ver memoria del cuelgue de e2e
+    console.log('resumen de subida:', await summary.allTextContents());
     await expect(summary.filter({ hasText: 'sample.heic: cargada' })).toHaveCount(1, {
       timeout: 30_000,
     });
