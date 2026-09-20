@@ -31,7 +31,7 @@ async function uploadHeroFromPanel(page: Page): Promise<string> {
   // La página se recarga sola cuando la subida termina (procesar un HEIC
   // real tarda unos segundos).
   await Promise.all([
-    page.waitForEvent('load', { timeout: 60_000 }),
+    page.waitForEvent('load', { timeout: 120_000 }),
     page.getByRole('button', { name: 'Subir foto principal' }).click(),
   ]);
   const manifest = await readManifest(DATA_DIR, HOME_HERO_SLUG);
