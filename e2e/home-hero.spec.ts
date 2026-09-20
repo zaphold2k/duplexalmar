@@ -1,9 +1,9 @@
-import { readdir } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
-import { HOME_HERO_SLUG } from '../src/server/home-hero';
+import { HOME_HERO_SLUG, replaceHomeHeroImage } from '../src/server/home-hero';
 import { readManifest } from '../src/server/houses';
-import { E2E_ADMIN_PASSWORD, E2E_ADMIN_USERNAME, E2E_BASE_URL, E2E_DATA_DIR } from './env';
+import { E2E_ADMIN_PASSWORD, E2E_ADMIN_USERNAME, E2E_DATA_DIR } from './env';
 
 const VALID_USERNAME = E2E_ADMIN_USERNAME;
 const VALID_PASSWORD = E2E_ADMIN_PASSWORD;
@@ -18,48 +18,20 @@ async function login(page: Page): Promise<void> {
   await expect(page).toHaveURL(/\/admin$/);
 }
 
-async function heroFiles(): Promise<string[]> {
-  try {
-    return await readdir(path.join(DATA_DIR, 'images', HOME_HERO_SLUG));
-  } catch {
-    return [];
-  }
-}
-
-async function uploadHeroFromPanel(page: Page): Promise<string> {
-  await page.setInputFiles('[data-home-hero-form] input[type="file"]', SAMPLE_HEIC);
-  // La página se recarga sola cuando la subida termina (procesar un HEIC
-  // real tarda unos segundos).
-  await Promise.all([
-    page.waitForEvent('load', { timeout: 120_000 }),
-    page.getByRole('button', { name: 'Subir foto principal' }).click(),
-  ]);
-  const manifest = await readManifest(DATA_DIR, HOME_HERO_SLUG);
-  const [id] = manifest.gallery;
-  expect(id).toBeDefined();
-  return id ?? '';
-}
-
 // Todo el archivo comparte el estado de la foto principal en el mismo /data
 // del server real, así que va en orden: primero sin foto, después con una.
 test.describe.configure({ mode: 'serial' });
 
-test.describe('acceso sin sesión', () => {
-  test('subir o quitar la foto principal responde 401 y no modifica nada', async ({
-    request,
-    baseURL,
-  }) => {
-    const origin = baseURL ?? E2E_BASE_URL;
-
-    const upload = await request.post('/api/admin/inicio/upload', { headers: { origin } });
-    const remove = await request.post('/api/admin/inicio/delete', { headers: { origin } });
-
-    expect(upload.status()).toBe(401);
-    expect(remove.status()).toBe(401);
-    const manifest = await readManifest(DATA_DIR, HOME_HERO_SLUG);
-    expect(manifest.gallery).toEqual([]);
-  });
-});
+// Lo que cubrían acá "acceso sin sesión" (401 del API) y "subida, reemplazo y
+// publicación"/"eliminación" (publicar/reemplazar/borrar la foto principal
+// sin redeploy) ahora vive en e2e-api/home-hero.test.ts: son pedidos HTTP
+// directos, sin necesitar Chrome ni Playwright. Las movió el bug de
+// `page.waitForEvent('load')` tras `location.reload()` colgando en el
+// runner de GitHub Actions (memoria "bug-hang-subida-heic-en-ci"; confirmado
+// de nuevo el 2026-09-20 en la corrida 35490650180, esta vez en el
+// equivalente de admin-panel.spec.ts). Lo que queda acá es lo que sí
+// necesita un browser real: layout (viewport, tamaño de controles) y que el
+// JS del panel muestre el mensaje de error inline.
 
 test.describe('sin foto propia', () => {
   test('el inicio muestra la imagen de reserva y el panel lo dice', async ({ page }) => {
@@ -72,31 +44,17 @@ test.describe('sin foto propia', () => {
   });
 });
 
-// Cuelga esperando el evento 'load' tras la subida sólo en el runner de
-// GitHub Actions, no en local (ver memoria "bug-hang-subida-heic-en-ci");
-// queda saltado hasta investigarlo aparte. "eliminación" depende de la foto
-// que siembra el primer test de acá, así que también se salta.
-test.describe.skip('subida, reemplazo y publicación', () => {
-  test('subir una foto desde el panel la publica en el inicio y en la vista previa, sin redeploy', async ({
-    page,
-  }) => {
-    await login(page);
-    const id = await uploadHeroFromPanel(page);
-
-    await expect(page.locator('[data-home-hero] img')).toHaveAttribute('src', new RegExp(id));
-    await expect(page.locator('[data-home-hero-empty]')).toHaveCount(0);
-
-    await page.goto('/');
-    await expect(page.locator('.hero__image')).toHaveAttribute('src', new RegExp(id));
-    const ogImage = await page.locator('meta[property="og:image"]').getAttribute('content');
-    expect(ogImage).toContain(`/images/${HOME_HERO_SLUG}/${id}`);
+test.describe('con foto propia, layout', () => {
+  test.beforeAll(async () => {
+    const buffer = await readFile(SAMPLE_HEIC);
+    const result = await replaceHomeHeroImage(DATA_DIR, {
+      clientFileName: 'hero.heic',
+      buffer,
+    });
+    expect(result.status).toBe('uploaded');
   });
 
   test('en pantalla grande la foto de inicio ocupa todo el ancho', async ({ page }) => {
-    // La foto la sembró el test anterior (un solo worker, en orden). Más
-    // ancha que la variante mayor de la imagen, la pantalla expone si el
-    // estilo de la página no llega al <img> (quedaba a su ancho intrínseco,
-    // pegada a la izquierda).
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
 
@@ -124,27 +82,6 @@ test.describe.skip('subida, reemplazo y publicación', () => {
       );
       await expect(page.locator('main p').first()).toBeInViewport();
     }
-  });
-
-  test('subir otra foto reemplaza la vigente y borra los archivos de la anterior', async ({
-    page,
-  }) => {
-    const before = await readManifest(DATA_DIR, HOME_HERO_SLUG);
-    const [previousId] = before.gallery;
-    expect(previousId).toBeDefined();
-    if (!previousId) return;
-
-    await login(page);
-    const newId = await uploadHeroFromPanel(page);
-
-    expect(newId).not.toBe(previousId);
-    const after = await readManifest(DATA_DIR, HOME_HERO_SLUG);
-    expect(after.gallery).toEqual([newId]);
-    expect(after.images[previousId]).toBeUndefined();
-
-    const files = await heroFiles();
-    expect(files.some((name) => name.startsWith(previousId))).toBe(false);
-    expect(files.some((name) => name.startsWith(newId))).toBe(true);
   });
 
   test('un archivo inválido se rechaza con un mensaje y la foto vigente no cambia', async ({
@@ -177,41 +114,5 @@ test.describe.skip('subida, reemplazo y publicación', () => {
       expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
       expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
     }
-  });
-});
-
-// Depende de la foto que sembraba "subida, reemplazo y publicación" (arriba,
-// saltada), así que se salta también.
-test.describe.skip('eliminación', () => {
-  test('quitar la foto con confirmación vuelve a la imagen de reserva, sin dejar huérfanos', async ({
-    page,
-  }) => {
-    await login(page);
-
-    page.once('dialog', (dialog) => void dialog.accept());
-    await Promise.all([
-      page.waitForEvent('load'),
-      page.getByRole('button', { name: 'Quitar foto principal' }).click(),
-    ]);
-
-    await expect(page.locator('[data-home-hero-empty]')).toBeVisible();
-    const manifest = await readManifest(DATA_DIR, HOME_HERO_SLUG);
-    expect(manifest.gallery).toEqual([]);
-    expect(await heroFiles()).toEqual([]);
-
-    await page.goto('/');
-    await expect(page.locator('.hero__image')).toHaveAttribute('src', '/images/reserve-cover.jpg');
-  });
-
-  test('quitar sin foto vigente es idempotente', async ({ page, baseURL }) => {
-    await login(page);
-
-    const response = await page.request.post('/api/admin/inicio/delete', {
-      headers: { origin: baseURL ?? E2E_BASE_URL },
-    });
-
-    expect(response.ok()).toBe(true);
-    const manifest = await readManifest(DATA_DIR, HOME_HERO_SLUG);
-    expect(manifest.gallery).toEqual([]);
   });
 });
