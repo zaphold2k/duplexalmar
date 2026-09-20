@@ -7,13 +7,18 @@ on:
 
 jobs:
   ci:
-    uses: zaphold2k/ci-workflows/.github/workflows/ci.yml@v1
+    # TEMPORAL: apuntado a @main (en vez de @v1) para probar el fix de
+    # ci_workflows_ref (zaphold2k/ci-workflows#7ebf926); @v1 todavía no lo
+    # tiene porque release-please no cortó una versión nueva. Volver a @v1
+    # (y a ci_workflows_ref: v1) antes de la primera publicación real (7.1).
+    uses: zaphold2k/ci-workflows/.github/workflows/ci.yml@main
     permissions:
       contents: write
       packages: write
       pull-requests: write
       actions: read
     with:
+      ci_workflows_ref: main
       language: node
       branch_model: simple
       main_branch: main
