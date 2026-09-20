@@ -36,4 +36,3 @@ jobs:
         }
       readme_path: README.md
       agent_docs: CLAUDE.md
-      dry_run: true
