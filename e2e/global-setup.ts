@@ -1,6 +1,5 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { chromium } from '@playwright/test';
 import { processUploadBatch } from '../src/server/images/batch';
 import {
   E2E_ADMIN_PASSWORD as ADMIN_PASSWORD,
@@ -8,35 +7,6 @@ import {
   E2E_BASE_URL as BASE_URL,
   E2E_DATA_DIR,
 } from './env';
-
-/**
- * DIAGNÓSTICO TEMPORAL (ver memoria "bug-hang-subida-heic-en-ci"): en CI, el
- * primer test que espera el evento 'load' tras un click (en vez de navegar
- * con page.goto) cuelga — no importa cuál sea. Esta función hace ese mismo
- * ciclo una vez acá, con un browser descartable, antes de que arranque
- * cualquier test real, para ver si el problema es sólo el primer ciclo
- * "click + waitForEvent('load')" de un browser recién arrancado en este
- * entorno. No falla el setup si cuelga: sólo lo deja registrado.
- */
-async function warmUpFirstLoadEvent(): Promise<void> {
-  const browser = await chromium.launch();
-  try {
-    const page = await browser.newPage();
-    await page.goto(`${BASE_URL}/admin/login`);
-    await page.getByLabel('Usuario').fill(ADMIN_USERNAME);
-    await page.getByLabel('Contraseña').fill(ADMIN_PASSWORD);
-    const start = Date.now();
-    await Promise.all([
-      page.waitForEvent('load', { timeout: 30_000 }),
-      page.getByRole('button', { name: 'Ingresar' }).click(),
-    ]);
-    console.error(`[warm-up] primer waitForEvent('load') tardó ${String(Date.now() - start)}ms`);
-  } catch (error) {
-    console.error('[warm-up] el ciclo de calentamiento colgó o falló:', error);
-  } finally {
-    await browser.close();
-  }
-}
 
 async function loginAndGetSessionCookie(): Promise<string> {
   const body = new URLSearchParams({ username: ADMIN_USERNAME, password: ADMIN_PASSWORD });
@@ -91,7 +61,6 @@ async function assertEmptyStateShowsReserveImage(): Promise<void> {
  */
 export default async function globalSetup(): Promise<void> {
   await assertEmptyStateShowsReserveImage();
-  await warmUpFirstLoadEvent();
 
   const fixturePath = path.join(process.cwd(), 'src/server/images/fixtures/sample.heic');
   const buffer = await readFile(fixturePath);
