@@ -7,14 +7,14 @@ on:
 
 jobs:
   ci:
-    uses: zaphold2k/ci-workflows/.github/workflows/ci.yml@fix/git-identity-for-tag-creation
+    uses: zaphold2k/ci-workflows/.github/workflows/ci.yml@v2
     permissions:
       contents: write
       packages: write
       pull-requests: write
       actions: read
     with:
-      ci_workflows_ref: fix/git-identity-for-tag-creation
+      ci_workflows_ref: v2
       language: node
       branch_model: simple
       main_branch: main
