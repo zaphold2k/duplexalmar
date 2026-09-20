@@ -32,6 +32,14 @@ function run(command: string, args: string[], env: NodeJS.ProcessEnv = {}): numb
 rmSync(DATA_DIR, { recursive: true, force: true });
 mkdirSync(DATA_DIR, { recursive: true });
 
+// El contenedor corre con este mismo uid:gid (ver docker-compose.e2e.yml):
+// sin esto, un archivo o carpeta que el host cree primero dentro de `/data`
+// (los tests siembran fotos llamando a `processUploadBatch` directamente, no
+// por HTTP) puede quedar sin permiso de escritura para el `node` (uid 1000)
+// fijo de la imagen si el uid del runner no coincide.
+process.env.E2E_UID = String(process.getuid?.() ?? 1000);
+process.env.E2E_GID = String(process.getgid?.() ?? 1000);
+
 let status = run('docker', [...COMPOSE, 'up', '--build', '--wait']);
 
 if (status === 0) {

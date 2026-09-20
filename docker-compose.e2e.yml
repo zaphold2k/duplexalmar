@@ -3,11 +3,22 @@
 # comparte el proyecto de Compose con el despliegue de docker-compose.yml, ni
 # arrastra el docker-compose.override.yml que monta el `./data` de desarrollo.
 #
-# Los tests corren en el host (Playwright) y siembran/leen el directorio de
-# datos directamente (ver e2e/env.ts), por eso `/data` es un bind mount a
-# `./data-e2e` y no un volumen nombrado. Ese directorio lo crea el script
-# antes del `up` para que no lo cree Docker como root, y lo borra el
-# global-teardown al terminar.
+# Los tests corren en el host (Playwright/Vitest) y siembran/leen el
+# directorio de datos directamente (ver e2e/env.ts), por eso `/data` es un
+# bind mount a `./data-e2e` y no un volumen nombrado. Ese directorio lo crea
+# el script antes del `up` para que no lo cree Docker como root, y lo borra
+# el global-teardown al terminar.
+#
+# `user`: el contenedor corre con el mismo uid:gid que el script que hace
+# `docker compose up` (lo pasa por `E2E_UID`/`E2E_GID`, ver
+# scripts/e2e-docker.ts), en vez del `node` (uid 1000) fijo de la imagen. Sin
+# esto, cualquier archivo o carpeta que el host cree primero dentro de
+# `/data` (los tests siembran fotos llamando a `processUploadBatch` desde el
+# propio proceso de Playwright/Vitest, no por HTTP) puede quedar sin permiso
+# de escritura para el proceso del contenedor si el uid del runner no
+# coincide con 1000 — pasó de verdad en GitHub Actions: `EACCES: permission
+# denied` al subir una foto nueva por el panel en una carpeta que había
+# sembrado el host.
 name: duplexalmar-e2e
 
 services:
@@ -17,6 +28,7 @@ services:
       - .env.e2e
     environment:
       DATA_DIR: /data
+    user: '${E2E_UID:-1000}:${E2E_GID:-1000}'
     volumes:
       - ./data-e2e:/data
     ports:

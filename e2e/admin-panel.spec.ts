@@ -128,21 +128,10 @@ test.describe('subida', () => {
     await page.setInputFiles('input[type="file"]', [validPath, invalidPath]);
     await page.getByRole('button', { name: 'Subir' }).click();
 
-    // El resumen se arma de una sola vez cuando responde el XHR (ver
-    // admin/[house].astro): no hay estado intermedio entre el `toHaveCount`
-    // y los `filter` de abajo, pero decodificar el HEIC real bajo CPU
-    // compartida en CI puede tardar más que el default de Playwright
-    // (mismo motivo que el timeout de 120s en playwright.config.ts).
     const summary = page.locator('[data-upload-summary] li');
-    await expect(summary).toHaveCount(2, { timeout: 30_000 });
-    // eslint-disable-next-line no-console -- diagnóstico temporal, ver memoria del cuelgue de e2e
-    console.log('resumen de subida:', await summary.allTextContents());
-    await expect(summary.filter({ hasText: 'sample.heic: cargada' })).toHaveCount(1, {
-      timeout: 30_000,
-    });
-    await expect(summary.filter({ hasText: 'not-an-image.txt' })).toHaveCount(1, {
-      timeout: 30_000,
-    });
+    await expect(summary).toHaveCount(2, { timeout: 15_000 });
+    await expect(summary.filter({ hasText: 'sample.heic: cargada' })).toHaveCount(1);
+    await expect(summary.filter({ hasText: 'not-an-image.txt' })).toHaveCount(1);
     await expect(summary.filter({ hasText: 'not-an-image.txt' })).toContainText(
       'no es una imagen válida',
     );

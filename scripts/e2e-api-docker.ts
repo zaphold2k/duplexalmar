@@ -23,9 +23,13 @@ function run(command: string, args: string[], env: NodeJS.ProcessEnv = {}): numb
 }
 
 // Igual que en scripts/e2e-docker.ts: recrear el directorio desde el host,
-// nunca dejar que lo cree Docker (quedaría de root).
+// nunca dejar que lo cree Docker (quedaría de root), y correr el contenedor
+// con el mismo uid:gid del host (ver docker-compose.e2e.yml) para que pueda
+// escribir en las carpetas que el host haya sembrado.
 rmSync(DATA_DIR, { recursive: true, force: true });
 mkdirSync(DATA_DIR, { recursive: true });
+process.env.E2E_UID = String(process.getuid?.() ?? 1000);
+process.env.E2E_GID = String(process.getgid?.() ?? 1000);
 
 let status = run('docker', [...COMPOSE, 'up', '--build', '--wait']);
 
