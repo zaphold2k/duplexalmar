@@ -3,6 +3,10 @@ dist/
 # generated types
 .astro/
 
+# cobertura y reporte JUnit del CI
+/coverage/
+/.ci/
+
 # salida de Playwright
 /test-results/
 /playwright-report/

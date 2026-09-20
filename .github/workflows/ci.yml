@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: ['main', 'feature/*']
+  pull_request:
+
+jobs:
+  ci:
+    uses: zaphold2k/ci-workflows/.github/workflows/ci.yml@v1
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: write
+      actions: read
+    with:
+      language: node
+      branch_model: simple
+      main_branch: main
+      work_branch_pattern: 'feature/*'
+      image_name: ghcr.io/zaphold2k/duplexalmar
+      test_command: npm test -- --coverage --reporter=junit --outputFile=.ci/junit.xml
+      e2e_command: npx playwright install --with-deps chromium && npm run test:e2e:docker
+      smoke_test_endpoint: http://localhost:4321/
+      smoke_test_port: '4321'
+      smoke_test_env: |
+        {
+          "ADMIN_USERNAME": "smoke",
+          "ADMIN_PASSWORD_HASH": "scrypt$32768$8$1$c2FsdA$aGFzaA",
+          "SESSION_SECRET": "smoke-test-session-secret-32-characters",
+          "WHATSAPP_NUMBER": "5492235293371",
+          "DATA_DIR": "/data",
+          "MAX_UPLOAD_FILE_SIZE_MB": "15",
+          "MAX_UPLOAD_BATCH_SIZE": "20"
+        }
+      readme_path: README.md
+      agent_docs: CLAUDE.md
+      dry_run: true
