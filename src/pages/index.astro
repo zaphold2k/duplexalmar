@@ -146,17 +146,19 @@ const ogImagePath = heroImage
     object-fit: cover;
   }
 
+  /* Como .house-hero__caption en [slug].astro: pegada abajo, con un
+   * degradé en vez de un velo parejo, para no taparle la foto entera. */
   .hero__caption {
     position: absolute;
-    inset: 0;
+    inset-inline: 0;
+    inset-block-end: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     text-align: center;
     gap: var(--space-3);
     padding: var(--space-4);
-    background: rgb(0 0 0 / 35%);
+    background: linear-gradient(to top, rgb(0 0 0 / 55%), transparent);
     color: white;
   }
 
