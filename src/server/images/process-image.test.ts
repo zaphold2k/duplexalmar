@@ -54,6 +54,8 @@ describe('processImage — variantes WebP', () => {
     expect(result.variants.map((v) => v.width)).toEqual([...VARIANT_WIDTHS]);
   });
 
+  // El decode HEIC + reescalado a varias variantes es trabajo real de CPU;
+  // bajo carga (workers en paralelo) puede superar el timeout por defecto.
   it('nunca produce una variante más ancha que el original decodificado', async () => {
     const buffer = await readFile(fixturePath);
 
@@ -64,7 +66,7 @@ describe('processImage — variantes WebP', () => {
       const meta = await sharp(variant.buffer).metadata();
       expect(meta.width).toBeLessThanOrEqual(result.width);
     }
-  });
+  }, 15000);
 });
 
 describe('processImage — orientación EXIF', () => {

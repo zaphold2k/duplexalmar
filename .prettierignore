@@ -7,3 +7,9 @@ package-lock.json
 openspec/
 .claude/
 CODESTYLE.md
+
+# Llevan el bloque generado por ci-workflows/render-docs.mjs; Prettier lo
+# reformatea de una forma que la verificación de drift del CI no acepta
+# (ver design.md, "Riesgos").
+README.md
+CLAUDE.md

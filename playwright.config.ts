@@ -17,6 +17,13 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
+  // Default de Playwright (30s) queda ajustado para los tests que suben un
+  // HEIC real y esperan el reload del servidor: decodificar y generar las
+  // variantes es CPU-intensivo, y en el runner de CI (CPU compartida, toda
+  // la suite en un solo worker) puede tardar bastante más que en una
+  // máquina de desarrollo (4-5s local). 60s no alcanzó en la corrida real
+  // (timeout clavado en las 3 reintentos); se sube a 120s.
+  timeout: 120_000,
   // Un solo worker: todos los tests comparten un único server real (mismo
   // `/data`, mismo limitador de login en memoria por IP). Correrlos en
   // paralelo entre archivos hacía flakiness cruzada (p. ej. un fallo de

@@ -6,7 +6,11 @@ import eslintPluginAstro from 'eslint-plugin-astro';
 
 export default defineConfig(
   {
-    ignores: ['dist/**', '.astro/**', 'node_modules/**'],
+    // .ci-workflows/: checkout del componente reutilizable que el CI hace
+    // dentro del propio working directory (ver ci-workflows/docs/INPUTS.md);
+    // trae sus propios fixtures de lint deliberadamente rotos para probar
+    // el conteo de supresiones, así que no es código de este repo.
+    ignores: ['dist/**', '.astro/**', 'node_modules/**', '.ci-workflows/**'],
   },
   eslint.configs.recommended,
   ...tseslint.configs.strictTypeChecked,

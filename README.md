@@ -71,6 +71,25 @@ La elección de proxy (nginx acá) y la emisión de certificados TLS para el dom
 
 Para producción, sacar el volumen bind-mount (dejar sólo `docker-compose.yml`, sin el `.override.yml`) para que `/data` sea el volumen nombrado `duplexalmar_data`, gestionado por Docker.
 
+**Importante:** este `docker-compose.yml` es para desarrollo y sigue construyendo la imagen local (`build: .`), no la publicada. No es lo que corre en producción — ver "Ejecutar la imagen en producción" abajo.
+
+## Ejecutar la imagen en producción
+
+Este repositorio no fija ningún host, inventario ni ruta de un entorno concreto: eso vive en el repositorio de despliegue, junto al runbook de las demás apps que administra. Lo que sigue es el contrato que la imagen publicada exige para correr, sea cual sea el entorno que la levante.
+
+| Exigencia            | Valor                                                                                                    |
+| --------------------- | --------------------------------------------------------------------------------------------------------- |
+| Datos                 | Volumen persistente en `DATA_DIR`, escribible por el uid 1000 (usuario `node` de la imagen)               |
+| Configuración          | Variables de entorno de `.env.docker.example`; el proceso falla al arrancar nombrando la que falte o sea inválida. **Si se cargan vía un `env_file` de Docker Compose**, escapar cada `$` de `ADMIN_PASSWORD_HASH` (el hash scrypt siempre lleva `$` como separador de campos) como `$$` — Compose reinterpreta el archivo buscando `$VAR` para interpolar, y un `$` sin escapar se reemplaza en silencio por texto vacío: el login falla sin ningún error claro. No aplica si las variables llegan por otro medio (vault, `docker run -e`, etc.) |
+| Puerto                | `4321` en la red interna; el contenedor no necesita publicar ningún puerto en el host                      |
+| Salud                 | `node -e "fetch('http://localhost:4321/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"` (igual que `docker-compose.yml`). La imagen es `node:22-bookworm-slim`: **no trae `wget` ni `curl`**, un healthcheck basado en esos binarios falla con "executable file not found" |
+| Memoria               | Límite explícito, 512 MB, igual que en el compose local                                                    |
+| Delante                | Un proxy que reenvíe `X-Forwarded-Proto` y `X-Forwarded-Host`: de ahí sale el flag `Secure` de la cookie de sesión y, si se configura `security.allowedDomains` con el dominio real, la IP de origen que usa el limitador de intentos de login (`Astro.clientAddress`). El chequeo de CSRF integrado de Astro (`security.checkOrigin`) está desactivado a propósito — el adapter de Node en modo standalone arma la URL de cada request mirando si el socket TCP está cifrado, nunca el header, así que rechazaba todo POST de formulario detrás de cualquier proxy que termine TLS antes del contenedor; la cookie de sesión `SameSite=Lax` sigue cubriendo el CSRF real |
+| Tamaño de petición     | El lote de subida entra en una sola petición; configurar `MAX_UPLOAD_BATCH_SIZE` por debajo del límite del proxy |
+| Versión               | La versión que corre es la etiqueta de la imagen; si la app tiene que reportarla, se le pasa por variable de entorno desde el despliegue |
+
+El procedimiento para aplicar una versión (fijarla, ensayar, aplicar, volver atrás) y el runbook completo de esta app viven en el repositorio de despliegue.
+
 ## Respaldo y restauración
 
 Todo el contenido mutable —manifests, fotos originales y variantes— vive bajo `/data`. No hay base de datos que respaldar aparte.
@@ -107,3 +126,32 @@ Para que las fotos nuevas queden parejas con el resto de la galería:
 - Por casa, como mínimo: fachada, galería, estar y cocina, cada dormitorio, baño, la vista desde el balcón y la parrilla.
 
 La carga inicial de fotos conviene hacerla directamente desde el iPhone a través del panel, con los archivos originales — no desde un álbum compartido, que entrega copias de resolución reducida.
+
+<!-- ci-workflows:block:start -->
+### Pipeline flow (simple branch model)
+
+This repository is a **node** project, publishing `ghcr.io/zaphold2k/duplexalmar`.
+
+Branches: `main` (stable) and branches matching `feature/*` (work).
+
+**Starting a change:** branch from `main`, naming it like `feature/login-oauth`. Open your pull request against `main`.
+
+**What runs on a pull request:** lint, typecheck, tests, build, and the quality ratchet, compared against the last successful run of the target branch. Coverage drops, lost tests, new skips, and new lint suppressions block the merge.
+
+**What each push produces:**
+- A push to a branch matching `feature/*` creates a prerelease tag and image tagged with that branch's own moving tag.
+- Accepting the release-please proposal on `main` cuts the stable version.
+- A branch outside this model runs the checks and produces no tag or image.
+
+**If a check blocks you:** see the reasons in the pull request comment or job summary. Coverage, test-count, and suppression regressions need fixing the regression, not silencing the check; a maintainer can apply the `ci-ratchet-override` label to accept a deliberate exception.
+<!-- ci-workflows:block:end -->
+
+## Versiones
+
+No hace falta abrir ningún workflow para cortar una versión:
+
+- **Pre-release:** empujar una rama `feature/*` publica sola una imagen de prueba (`X.Y.Z-alpha.<rama>.N`) con una etiqueta móvil del nombre de la rama. Sirve para probar un build sin cortar nada estable.
+- **Release estable:** release-please mantiene abierto un PR contra `main` con la versión propuesta y el changelog. Aceptarlo corta el tag `vX.Y.Z`, publica la imagen (`X.Y.Z`, `X.Y` y `latest`) y crea la release de GitHub.
+- **Dónde ver el changelog:** `CHANGELOG.md` en la raíz, o `gh release view` para la última release publicada.
+- **Si una release queda sin imagen:** falta o venció el secreto `RELEASE_PLEASE_TOKEN`. El tag ya existe; volver a correr `ci.yml` sobre ese tag publica la imagen sin crear una versión nueva.
+- **Si el ratchet de calidad bloquea un cambio legítimo:** la salida por defecto es cubrir lo que falta, no esquivar el chequeo. La única excepción es la etiqueta `ci-ratchet-override` en el pull request, y **sólo la pone una persona** — un agente no se la aplica a sí mismo.

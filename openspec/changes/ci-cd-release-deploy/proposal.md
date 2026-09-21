@@ -1,0 +1,40 @@
+## Why
+
+Hoy el sitio se despliega a mano: `docker compose up -d --build` en la máquina que lo corre, sin versión, sin registro de qué commit está en producción y sin un lugar donde quede escrito qué cambió entre una publicación y otra. No hay integración continua: `npm run check` corre sólo en el hook de pre-commit y la suite e2e sólo cuando alguien se acuerda. Con el sitio a punto de salir a producción, hace falta un flujo repetible: cada versión es una imagen publicada, cada release tiene su changelog, y llevar una versión a producción es una operación acotada y reversible.
+
+Ese flujo ya existe y está probado fuera de este repositorio: el componente `zaphold2k/ci-workflows` es un conjunto de workflows reutilizables (CI por lenguaje, ratchet de calidad, imagen multi-arch, versionado y releases) que ya se mantiene aparte. Escribir acá una segunda implementación de lo mismo significaría mantener dos: este change adopta el componente en vez de reinventarlo, y acepta el modelo que el componente impone donde difiere de lo que este repositorio haría por su cuenta.
+
+## What Changes
+
+- **Integración continua consumiendo el componente**: dos workflows finos en `.github/workflows/` que llaman a `zaphold2k/ci-workflows/.github/workflows/ci.yml@v1` y `.../release.yml@v1` (copiados de `templates/node/simple` y `templates/node/release.yml`). En cada push y pull request corren instalación, lint, typecheck, tests unitarios, build y la suite e2e contra la imagen de Docker (`npm run test:e2e:docker`). Nada se publica si eso no está en verde.
+- **La versión es el tag de git, calculada por release-please** desde los commits convencionales (`feat:` → minor, `fix:` → patch, ruptura en `0.x` → minor). `package.json` y `CHANGELOG.md` los mantiene release-please: son un registro, no la fuente. Nadie corre `npm version` a mano ni crea tags estables a mano.
+- **Modelo de rama simple**: `main` más ramas de trabajo `feature/*`. Cada push a una rama de trabajo publica el tag de pre-release `X.Y.Z-alpha.<rama>.N` y su imagen, más una etiqueta móvil con el nombre de la rama. Un push directo a `main` que no sea una release publica las etiquetas `main` y la del commit, sin versión.
+- **Release al aceptar el PR de release**: release-please mantiene abierto un PR con la versión propuesta y el changelog; aceptarlo crea el tag `vX.Y.Z`, actualiza `CHANGELOG.md` y `package.json`, y dispara la publicación de la imagen con las etiquetas `X.Y.Z`, `X.Y` y `latest` (sin etiqueta de major pelado mientras la serie sea `0.x`). Para que ese disparo sea automático hace falta el secreto `RELEASE_PLEASE_TOKEN`.
+- **No regresión de calidad**: el ratchet del componente compara cobertura, cantidad de tests que pasan, tests salteados y supresiones de lint contra la última corrida verde de la rama de integración, y bloquea lo que empeora. Para que tenga qué leer, `vitest` pasa a emitir cobertura (`json-summary`) y un reporte JUnit, lo que agrega `@vitest/coverage-v8` como dependencia de desarrollo.
+- **Una imagen por versión en GitHub Container Registry** (`ghcr.io/zaphold2k/duplexalmar`), construida para `linux/amd64` y `linux/arm64` con QEMU, verificada antes de publicarse: build `amd64` cargado localmente y smoke test que arranca el contenedor y pide `/`.
+- **Documentación de flujo generada**: `render-docs.mjs` del componente instala en `README.md` y en `CLAUDE.md` un bloque que describe el flujo concreto de este repositorio (qué rama, qué produce cada push, cómo se corta una versión, que el ratchet no se esquiva). El CI verifica en cada corrida que ese bloque no se haya desactualizado.
+- **Contrato de ejecución de la imagen en producción**: este repo documenta qué exige la imagen del entorno que la corre (volumen de datos persistente y escribible por el usuario de la imagen, configuración por variables de entorno, sin puertos publicados, healthcheck, límite de memoria, y un proxy delante que termine TLS y reenvíe el protocolo y el host originales). No documenta ningún host, inventario ni ruta concretos.
+- **Despliegue continuo desde el repo de despliegue con Ansible**, que ya administra el resto de los servicios del entorno. El sitio pasa a ser una app más de ese repo, con la imagen fijada por versión. Aplicar una release es cambiar la versión fijada ahí y correr el playbook; volver atrás es lo mismo con la versión anterior. **El diseño concreto de esa pieza (definición del servicio, preparación del entorno, runbook de despliegue y de vuelta atrás) se escribe y se mantiene en ese repo, no acá.**
+- **Producción sin nginx**: el contenedor de la app queda solo detrás del proxy que ya termina TLS en el entorno. La app ya sirve `/images/` con los mismos encabezados de caché que el proxy local y el adapter de Astro respeta `X-Forwarded-Proto`/`X-Forwarded-Host`, así que la protección CSRF funciona con TLS terminado afuera. El `docker-compose.yml` local con proxy no cambia.
+
+## Capabilities
+
+### New Capabilities
+
+- `publicacion-de-versiones`: verificación continua y no regresión de calidad en cada push y PR, versionado desde el tag calculado por commits convencionales, imagen publicada por cada versión, pre-releases automáticas por rama de trabajo y release con changelog al aceptar el PR de release.
+- `despliegue-produccion`: qué exige la imagen del entorno que la corre, cómo una versión publicada se aplica y se revierte, y cómo el sitio queda publicado con TLS sin que este repo fije la infraestructura.
+
+### Modified Capabilities
+
+<!-- Ninguna: el comportamiento del sitio y del panel no cambia. La única pieza de runtime que cambia es la forma de desplegar, y es una capacidad nueva. -->
+
+## Impact
+
+- **Repo `duplexalmar`**:
+  - Nuevo: `.github/workflows/ci.yml` y `.github/workflows/release.yml` (sólo llamadas al componente con sus inputs), `release-please-config.json`, `.release-please-manifest.json`, `CHANGELOG.md` (lo crea release-please en el primer PR de release).
+  - Modificado: `vitest.config.ts` gana cobertura con reporter `json-summary` y el reporter `junit` hacia `.ci/junit.xml`. `package.json` gana `@vitest/coverage-v8` en desarrollo; su `version` pasa a ser mantenida por release-please. `README.md` gana el bloque de flujo generado, la sección "Versiones" y la sección "Ejecutar la imagen en producción". `CLAUDE.md` se crea con el mismo bloque generado. `.prettierignore` y `.gitignore` se ajustan para los artefactos generados (`CHANGELOG.md` si Prettier lo reformatea, `.ci/`, `coverage/`).
+  - Sin cambios en `src/`, sin dependencias nuevas de runtime. El `Dockerfile` **no** cambia: las etiquetas OCI de origen, versión y revisión las inyecta el componente al construir.
+- **Repo de despliegue** (privado, con Ansible): gana la definición del servicio, el runbook de preparación del entorno, el procedimiento de despliegue y de vuelta atrás, y un comando que fija la versión y corre el playbook. Todo ese material se escribe allá, siguiendo sus propias convenciones; este change sólo declara que tiene que existir y qué tiene que cumplir. El detalle de inventarios, hosts y rutas no se replica acá.
+- **Repo `ci-workflows`**: se consume por tag flotante `@v1`; este repositorio no lo modifica. Si algo del flujo necesita cambiar (un input nuevo, otra plataforma), el cambio va allá y llega acá sin tocar nada.
+- **GitHub**: el paquete `duplexalmar` en GHCR se hace público una única vez después del primer push (los paquetes de usuario nacen privados); así el entorno lo baja sin credenciales. Hace falta un secreto `RELEASE_PLEASE_TOKEN` (PAT con `contents: write`) para que aceptar el PR de release dispare la publicación de la imagen; el resto usa el `GITHUB_TOKEN` del propio repo con `contents: write`, `packages: write`, `pull-requests: write` y `actions: read`.
+- **Limitación conocida**: el proxy de producción limita cada petición a 100 MB. Con `MAX_UPLOAD_FILE_SIZE_MB=15` y `MAX_UPLOAD_BATCH_SIZE=20`, un lote completo podría superarlo. Se mitiga con la configuración de entorno del despliegue, bajando el lote a 6 fotos; cambiar la subida a una petición por foto queda fuera de este change.
