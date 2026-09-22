@@ -3,6 +3,12 @@ name: CI
 on:
   push:
     branches: ['main', 'feature/*']
+    # Sin esto, un push del tag de versión que crea release-please (evento
+    # de tag, no de rama) nunca dispara este workflow: el push a `main` que
+    # lo acompaña sólo produce la imagen "main"/<sha corto> (ver
+    # version.mjs, camino refType==="branch"), nunca la versionada
+    # (0.1.0/0.1/latest), que sale únicamente del camino refType==="tag".
+    tags: ['v*']
   pull_request:
 
 jobs:
