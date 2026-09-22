@@ -13,3 +13,8 @@ CODESTYLE.md
 # (ver design.md, "Riesgos").
 README.md
 CLAUDE.md
+
+# Lo regenera/reescribe release-please en cada release, en su propio
+# formato — Prettier lo reformatea distinto y quedaría peleando en cada
+# release (ver tasks.md de ci-cd-release-deploy, tarea 3.4).
+CHANGELOG.md
